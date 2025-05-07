@@ -1,6 +1,21 @@
 import '../styles/styles.css';
 import App from './pages/app';
 
+if (module.hot) {
+    module.hot.accept('./pages/app', () => {
+        console.log('Accepting the updated App module!');
+    });
+    
+    module.hot.accept('./pages/landing/landing-page', () => {
+        console.log('Accepting the updated LandingPage module!');
+        const LandingPage = require('./pages/landing/landing-page').default;
+        if (customElements.get('landing-page')) {
+            customElements.undefine('landing-page');
+        }
+        customElements.define('landing-page', LandingPage);
+    });
+}
+
 async function safeDefine(name, importPromise) {
     if (!customElements.get(name)) {
         try {

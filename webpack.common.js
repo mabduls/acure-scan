@@ -7,9 +7,9 @@ module.exports = {
     app: path.resolve(__dirname, 'src/scripts/index.js'),
   },
   output: {
-    filename: '[name].bundle.js',
+    filename: '[name].[contenthash].bundle.js',
     path: path.resolve(__dirname, 'dist'),
-    publicPath: '/',
+    publicPath: '', // Changed from '/' to empty string
     clean: true, 
   },
   module: {
@@ -24,18 +24,7 @@ module.exports = {
           }
         }
       },
-      {
-        test: /\.css$/,
-        use: [
-          'style-loader', 
-          'css-loader',
-          'postcss-loader', 
-        ],
-      },
-      {
-        test: /\.(png|jpe?g|gif|svg)$/i,
-        type: 'asset/resource',
-      }
+      // Remove CSS rules from common config as they're defined in dev and prod configs
     ],
   },
   plugins: [

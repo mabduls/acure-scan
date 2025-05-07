@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "dev": "webpack serve --config webpack.dev.js",
+    "dev-clean": "rd /s /q dist && webpack serve --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js",
-    "start-dev": "webpack serve --config webpack.dev.js",
     "serve": "http-server dist"
   },
   "keywords": [],

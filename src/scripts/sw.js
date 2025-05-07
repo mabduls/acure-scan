@@ -1,6 +1,3 @@
-// File: src/scripts/sw.js
-// Service worker tanpa import dari workbox (lebih sederhana)
-
 const CACHE_NAME = 'acurescan-v1';
 const urlsToCache = [
     '/',
@@ -8,9 +5,12 @@ const urlsToCache = [
     '/app.bundle.js',
 ];
 
-// Install service worker
 self.addEventListener('install', (event) => {
-    // Perform install steps
+    // Skip caching selama development
+    if (process.env.NODE_ENV !== 'production') {
+        return self.skipWaiting();
+    }
+    
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => {
@@ -21,12 +21,15 @@ self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
 
-// Cache and return requests
 self.addEventListener('fetch', (event) => {
+    // Skip caching selama development
+    if (process.env.NODE_ENV !== 'production') {
+        return;
+    }
+    
     event.respondWith(
         caches.match(event.request)
             .then((response) => {
-                // Cache hit - return response
                 if (response) {
                     return response;
                 }
@@ -35,7 +38,6 @@ self.addEventListener('fetch', (event) => {
     );
 });
 
-// Update service worker
 self.addEventListener('activate', (event) => {
     const cacheWhitelist = [CACHE_NAME];
     event.waitUntil(

@@ -4,6 +4,11 @@ const { merge } = require('webpack-merge');
 
 module.exports = merge(common, {
   mode: 'development',
+  devtool: 'inline-source-map',
+  output: {
+    filename: '[name].bundle.js', // Removed contenthash for development
+    publicPath: '/'
+  },
   module: {
     rules: [
       {
@@ -13,21 +18,28 @@ module.exports = merge(common, {
           {
             loader: 'css-loader',
             options: {
-              sourceMap: true
+              sourceMap: true,
+              importLoaders: 1
             },
           },
-          'postcss-loader', 
+          {
+            loader: 'postcss-loader',
+            options: {
+              sourceMap: true
+            }
+          }
         ],
       },
     ],
   },
   devServer: {
     static: {
-      directory: path.join(__dirname, 'dist'),
+      directory: path.resolve(__dirname, 'dist'),
     },
     open: true,
     port: 9000,
     hot: true,
+    liveReload: false, // Changed to false to avoid conflicts with HMR
     compress: true,
     historyApiFallback: true,
     client: {
@@ -35,12 +47,14 @@ module.exports = merge(common, {
         errors: true,
         warnings: true,
       },
+      progress: true,
+      logging: 'info', // Changed from verbose to info
     },
     devMiddleware: {
-      writeToDisk: true, 
+      writeToDisk: false, // Changed to false for better performance
     }
   },
   optimization: {
-    runtimeChunk: 'single', 
+    runtimeChunk: 'single',
   }
 });
