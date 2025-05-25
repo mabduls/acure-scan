@@ -22,7 +22,7 @@ class LandingPage extends HTMLElement {
                         <a href="#" class="text-gray-600 hover:text-teal-600">Contact</a>
                     </div>
                     <div class="flex space-x-4">
-                        <a href="#" class="text-teal-700 font-medium hover:text-teal-800">Login</a>
+                        <a href="#/login" class="text-teal-700 font-medium hover:text-teal-800">Login</a>
                         <a href="#" class="bg-teal-500 text-white px-4 py-2 rounded-md hover:bg-teal-600 transition">Sign Up</a>
                     </div>
                 </div>
