@@ -20,15 +20,20 @@ class App {
             if (pathname === '/') {
                 await this._initLandingPage();
             }
+
+            // Penambahan inisialisasi home-page tanpa menghapus yang sudah ada
+            if (pathname === '/home') {
+                await this._initHomePage();
+            }
         } catch (error) {
             console.error('Failed to render page:', error);
             this._content.innerHTML = `
-        <div style="color: white; padding: 2rem; text-align: center;">
-            <h2>Error</h2>
-            <p>${error.message}</p>
-            <button onclick="window.location.hash='#/'">Back to Home</button>
-        </div>
-        `;
+                <div style="color: white; padding: 2rem; text-align: center;">
+                    <h2>Error</h2>
+                    <p>${error.message}</p>
+                    <button onclick="window.location.hash='#/'">Back to Home</button>
+                </div>
+            `;
         }
     }
 
@@ -37,6 +42,15 @@ class App {
         const landingPage = this._content.querySelector('landing-page');
         if (landingPage) {
             console.log('Landing page initialized');
+        }
+    }
+
+    // Fungsi baru untuk inisialisasi home-page
+    async _initHomePage() {
+        await customElements.whenDefined('home-page');
+        const homePage = this._content.querySelector('home-page');
+        if (homePage) {
+            console.log('Home page initialized');
         }
     }
 }
