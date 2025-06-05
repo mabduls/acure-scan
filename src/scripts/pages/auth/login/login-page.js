@@ -1,12 +1,7 @@
-import template from './landing-page-template.html';
+import template from './login-page-template.html';
 import LoginPresenter from "./login-presenter.js";
 
 class LoginPage extends HTMLElement {
-    constructor() {
-        super();
-        this._presenter = new LoginPresenter(this);
-    }
-
     connectedCallback() {
         this.render();
         this._addFormEventListeners();
@@ -17,6 +12,14 @@ class LoginPage extends HTMLElement {
     }
 
     _addFormEventListeners() {
+        const backButton = this.querySelector("#backToLanding");
+        if (backButton) {
+            backButton.addEventListener("click", (e) => {
+                e.preventDefault();
+                this.navigateTo("/"); 
+            });
+        }
+
         const loginForm = this.querySelector("#loginForm");
         if (loginForm) {
             loginForm.addEventListener("submit", (event) => {
