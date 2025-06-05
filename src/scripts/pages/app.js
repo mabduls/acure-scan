@@ -14,11 +14,13 @@ class App {
             let routePattern = pathname === '/' ? '/' : `/${resource || ''}`
             if (id) routePattern += '/:id'
 
-            const route = routes[routePattern] || routes['/']
+            const route = routes[pathname] || routes['/']
             this._content.innerHTML = route.template
 
             if (pathname === '/') {
                 await this._initLandingPage()
+            } else if (pathname === '/login') {
+                await this._initLoginPage()
             }
         } catch (error) {
             console.error('Failed to render page:', error)
@@ -37,6 +39,14 @@ class App {
         const landingPage = this._content.querySelector('landing-page')
         if (landingPage) {
             console.log('Landing page initialized')
+        }
+    }
+
+    async _initLoginPage() {
+        await customElements.whenDefined('login-page')
+        const loginPage = this._content.querySelector('login-page')
+        if (loginPage) {
+            console.log('Login page initialized')
         }
     }
 }

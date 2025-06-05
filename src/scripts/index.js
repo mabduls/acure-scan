@@ -34,6 +34,7 @@ async function initializeApp() {
     try {
         await Promise.all([
             safeDefine('landing-page', import('./pages/landing/landing-page')),
+            safeDefine('login-page', import('./pages/auth/login/login-page')),
         ]);
 
         const app = new App({

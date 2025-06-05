@@ -1,11 +1,33 @@
 const routes = {
     '/': {
-        template: '<landing-page></landing-page>'
+        template: '<landing-page></landing-page>',
+        title: 'Landing Page'
+    },
+    '/login': {
+        template: '<login-page></login-page>',
+        title: 'Login Page'
     }
-}
+};
+
 
 function navigateToUrl(url) {
-    window.location.hash = url
+    window.location.hash = `#${url}`; 
 }
 
-export { routes, navigateToUrl }
+function checkAuth(route) {
+    const isAuthenticated = !!getAccessToken();
+
+    if (route.requiresAuth && !isAuthenticated) {
+        navigateToUrl('/');
+        return false;
+    }
+
+    if (!route.requiresAuth && isAuthenticated && window.location.hash === '#/') {
+        navigateToUrl('/home');
+        return false;
+    }
+
+    return true;
+}
+
+export { routes, navigateToUrl, checkAuth }
