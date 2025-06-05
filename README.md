@@ -18,16 +18,19 @@ AcureScan is a web application that utilizes machine learning to detect, classif
 ## 🚀 Technologies
 
 ### Frontend
+
 - HTML5, CSS3, JavaScript (ES6+)
 - Tailwind CSS for styling
 - Custom Web Components for modularity
 
 ### Backend
+
 - Node.js
 - Webpack for module bundling
 - Service Workers for offline functionality
 
 ### Machine Learning
+
 - Custom-trained image recognition model for acne detection and classification
 
 ## 📁 Project Structure
@@ -72,30 +75,34 @@ AcureScan is a web application that utilizes machine learning to detect, classif
 ## 🛠️ Installation
 
 1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/acurescan.git
-   cd acurescan
-   ```
+
+    ```bash
+    git clone https://github.com/yourusername/acurescan.git
+    cd acurescan
+    ```
 
 2. Install dependencies:
-   ```bash
-   npm install
-   ```
+
+    ```bash
+    npm install
+    ```
 
 3. Start the development server:
-   ```bash
-   npm run start-dev
-   ```
+
+    ```bash
+    npm run start-dev
+    ```
 
 4. For production build:
-   ```bash
-   npm run build
-   ```
+
+    ```bash
+    npm run build
+    ```
 
 5. To serve the production build:
-   ```bash
-   npm run serve
-   ```
+    ```bash
+    npm run serve
+    ```
 
 ## 🧠 How It Works
 
@@ -113,8 +120,8 @@ The application is built using custom Web Components for modularity:
 
 - Each page is a self-contained component
 - Components follow the MVP (Model-View-Presenter) pattern with separate:
-  - `-page.js` files for component definition (View)
-  - `-presenter.js` files for business logic (Presenter)
+    - `-page.js` files for component definition (View)
+    - `-presenter.js` files for business logic (Presenter)
 - Routing is handled via hash-based navigation
 - Data persistence uses IndexedDB through the idb library
 
@@ -140,6 +147,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 📞 Contact
 
 For questions, feedback, or support, please contact:
+
 - Email: abdabdulziza@gmail.com
 - GitHub: [mabduls](https://github.com/mabduls)
 
