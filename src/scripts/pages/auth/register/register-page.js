@@ -1,19 +1,18 @@
-
 import RegisterPresenter from "./register-presenter.js";
 
 class RegisterPage extends HTMLElement {
-  constructor() {
-    super();
-    this._presenter = new RegisterPresenter(this);
-  }
+    constructor() {
+        super();
+        this._presenter = new RegisterPresenter(this);
+    }
 
-  connectedCallback() {
-    this.render();
-    this._addFormEventListeners();
-  }
+    connectedCallback() {
+        this.render();
+        this._addFormEventListeners();
+    }
 
-  render() {
-    this.innerHTML = `
+    render() {
+        this.innerHTML = `
       <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-100 to-cyan-50 p-4">
         <div class="rounded-2xl shadow-2xl flex flex-col md:flex-row w-full max-w-4xl lg:max-w-5xl overflow-hidden my-8 transform transition-all duration-300 hover:shadow-[0_20px_50px_rgba(8,145,178,0.2)]">
 
@@ -193,267 +192,258 @@ class RegisterPage extends HTMLElement {
         </div>
       </div>
     `;
-  }
-
-  _addFormEventListeners() {
-    const registerForm = this.querySelector("#registerForm");
-    if (registerForm) {
-      registerForm.addEventListener("submit", (event) => {
-        event.preventDefault();
-        this._presenter.handleRegistrationAttempt();
-      });
-    } else {
-      console.error("View: #registerForm not found. Check render() method.");
     }
 
-    const googleSignUpBtn = this.querySelector("#googleSignUpBtn");
-    if (googleSignUpBtn) {
-      googleSignUpBtn.addEventListener("click", () => {
-        this._presenter.handleGoogleRegistration();
-      });
-    } else {
-      console.error("View: #googleSignUpBtn not found.");
-    }
-
-    const emailSignUpBtnAlt = this.querySelector("#emailSignUpBtnAlt");
-    if (emailSignUpBtnAlt) {
-      emailSignUpBtnAlt.addEventListener("click", () => {
-        this._presenter.handleAlternativeEmailRegistration();
-      });
-    } else {
-      console.error("View: #emailSignUpBtnAlt not found.");
-    }
-
-    const loginLink = this.querySelector("#loginLink");
-    if (loginLink) {
-      loginLink.addEventListener("click", (e) => {
-        if (loginLink.getAttribute("href") === "#/login") {
-          console.log(
-            "View: Login link clicked, SPA router should handle this."
-          );
+    _addFormEventListeners() {
+        const registerForm = this.querySelector("#registerForm");
+        if (registerForm) {
+            registerForm.addEventListener("submit", (event) => {
+                event.preventDefault();
+                this._presenter.handleRegistrationAttempt();
+            });
         } else {
-          e.preventDefault();
-          this._presenter.handleLoginNavigation();
+            console.error("View: #registerForm not found. Check render() method.");
         }
-      });
-    } else {
-      console.error("View: #loginLink not found.");
-    }
 
-    
-    const passwordInput = this.querySelector("#password");
-    if (passwordInput) {
-      passwordInput.addEventListener("input", (e) => {
-        this._presenter.handlePasswordStrengthCheck(e.target.value);
-      });
-    }
-
-    
-    const confirmPasswordInput = this.querySelector("#confirmPassword");
-    if (confirmPasswordInput) {
-      confirmPasswordInput.addEventListener("input", () => {
-        this._presenter.validatePasswordMatch();
-      });
-    }
-  }
-
-  getFormValues() {
-    return {
-      firstName: this.querySelector("#firstName")?.value.trim() || "",
-      lastName: this.querySelector("#lastName")?.value.trim() || "",
-      email: this.querySelector("#email")?.value.trim() || "",
-      password: this.querySelector("#password")?.value || "",
-      confirmPassword: this.querySelector("#confirmPassword")?.value || "",
-      termsAccepted: this.querySelector("#termsAccepted")?.checked || false,
-    };
-  }
-
-  updatePasswordStrength(strength, message) {
-    const passwordStrength = this.querySelector("#passwordStrength");
-    const passwordStrengthBar = this.querySelector("#passwordStrengthBar");
-    const passwordStrengthText = this.querySelector("#passwordStrengthText");
-
-    if (passwordStrength && passwordStrengthBar && passwordStrengthText) {
-      passwordStrength.classList.remove("hidden");
-
-      
-      passwordStrengthBar.style.width = `${strength}%`;
-
-      
-      if (strength < 40) {
-        passwordStrengthBar.className =
-          "h-full bg-red-500 transition-all duration-300";
-      } else if (strength < 70) {
-        passwordStrengthBar.className =
-          "h-full bg-yellow-500 transition-all duration-300";
-      } else {
-        passwordStrengthBar.className =
-          "h-full bg-green-500 transition-all duration-300";
-      }
-
-      
-      passwordStrengthText.textContent = message;
-    }
-  }
-
-  setPasswordError(error) {
-    const confirmPasswordInput = this.querySelector("#confirmPassword");
-    if (confirmPasswordInput) {
-      if (error) {
-        confirmPasswordInput.classList.add("border-red-500");
-        confirmPasswordInput.classList.add("focus:border-red-500");
-        confirmPasswordInput.classList.add("focus:ring-red-500");
-
-        
-        let errorMsg = confirmPasswordInput.nextElementSibling;
-        if (!errorMsg || !errorMsg.classList.contains("password-error")) {
-          errorMsg = document.createElement("p");
-          errorMsg.className = "text-red-500 text-xs mt-1 password-error";
-          errorMsg.textContent = "Passwords do not match";
-          confirmPasswordInput.parentNode.appendChild(errorMsg);
+        const googleSignUpBtn = this.querySelector("#googleSignUpBtn");
+        if (googleSignUpBtn) {
+            googleSignUpBtn.addEventListener("click", () => {
+                this._presenter.handleGoogleRegistration();
+            });
+        } else {
+            console.error("View: #googleSignUpBtn not found.");
         }
-      } else {
-        confirmPasswordInput.classList.remove("border-red-500");
-        confirmPasswordInput.classList.remove("focus:border-red-500");
-        confirmPasswordInput.classList.remove("focus:ring-red-500");
 
-        
-        const errorMsg = confirmPasswordInput.nextElementSibling;
-        if (errorMsg && errorMsg.classList.contains("password-error")) {
-          errorMsg.remove();
+        const emailSignUpBtnAlt = this.querySelector("#emailSignUpBtnAlt");
+        if (emailSignUpBtnAlt) {
+            emailSignUpBtnAlt.addEventListener("click", () => {
+                this._presenter.handleAlternativeEmailRegistration();
+            });
+        } else {
+            console.error("View: #emailSignUpBtnAlt not found.");
         }
-      }
+
+        const loginLink = this.querySelector("#loginLink");
+        if (loginLink) {
+            loginLink.addEventListener("click", (e) => {
+                if (loginLink.getAttribute("href") === "#/login") {
+                    console.log(
+                        "View: Login link clicked, SPA router should handle this."
+                    );
+                } else {
+                    e.preventDefault();
+                    this._presenter.handleLoginNavigation();
+                }
+            });
+        } else {
+            console.error("View: #loginLink not found.");
+        }
+
+        const passwordInput = this.querySelector("#password");
+        if (passwordInput) {
+            passwordInput.addEventListener("input", (e) => {
+                this._presenter.handlePasswordStrengthCheck(e.target.value);
+            });
+        }
+
+        const confirmPasswordInput = this.querySelector("#confirmPassword");
+        if (confirmPasswordInput) {
+            confirmPasswordInput.addEventListener("input", () => {
+                this._presenter.validatePasswordMatch();
+            });
+        }
     }
-  }
 
-  _showNotification(message, type = "info") {
-    const notificationArea = this.querySelector("#registerNotification");
-    if (!notificationArea) {
-      console.error("View: #registerNotification element not found!");
-      return;
+    getFormValues() {
+        return {
+            firstName: this.querySelector("#firstName")?.value.trim() || "",
+            lastName: this.querySelector("#lastName")?.value.trim() || "",
+            email: this.querySelector("#email")?.value.trim() || "",
+            password: this.querySelector("#password")?.value || "",
+            confirmPassword: this.querySelector("#confirmPassword")?.value || "",
+            termsAccepted: this.querySelector("#termsAccepted")?.checked || false,
+        };
     }
 
-    const bgColor =
-      type === "error"
-        ? "bg-red-500"
-        : type === "success"
-        ? "bg-green-500"
-        : "bg-blue-500";
-    const notificationId = `notif-${Date.now()}`;
+    updatePasswordStrength(strength, message) {
+        const passwordStrength = this.querySelector("#passwordStrength");
+        const passwordStrengthBar = this.querySelector("#passwordStrengthBar");
+        const passwordStrengthText = this.querySelector("#passwordStrengthText");
 
-    const alertDiv = document.createElement("div");
-    alertDiv.id = notificationId;
-    alertDiv.className = `${bgColor} text-white p-4 rounded-lg shadow-xl mb-3 flex items-center transform transition-all duration-300 translate-x-0 opacity-100 scale-100`;
-    alertDiv.setAttribute("role", "alert");
+        if (passwordStrength && passwordStrengthBar && passwordStrengthText) {
+            passwordStrength.classList.remove("hidden");
 
-    // Add appropriate icon based on notification type
-    const iconSvg = document.createElement("div");
-    iconSvg.className = "mr-3 flex-shrink-0";
+            passwordStrengthBar.style.width = `${strength}%`;
 
-    if (type === "error") {
-      iconSvg.innerHTML = `<svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            if (strength < 40) {
+                passwordStrengthBar.className =
+                    "h-full bg-red-500 transition-all duration-300";
+            } else if (strength < 70) {
+                passwordStrengthBar.className =
+                    "h-full bg-yellow-500 transition-all duration-300";
+            } else {
+                passwordStrengthBar.className =
+                    "h-full bg-green-500 transition-all duration-300";
+            }
+
+            passwordStrengthText.textContent = message;
+        }
+    }
+
+    setPasswordError(error) {
+        const confirmPasswordInput = this.querySelector("#confirmPassword");
+        if (confirmPasswordInput) {
+            if (error) {
+                confirmPasswordInput.classList.add("border-red-500");
+                confirmPasswordInput.classList.add("focus:border-red-500");
+                confirmPasswordInput.classList.add("focus:ring-red-500");
+
+                let errorMsg = confirmPasswordInput.nextElementSibling;
+                if (!errorMsg || !errorMsg.classList.contains("password-error")) {
+                    errorMsg = document.createElement("p");
+                    errorMsg.className = "text-red-500 text-xs mt-1 password-error";
+                    errorMsg.textContent = "Passwords do not match";
+                    confirmPasswordInput.parentNode.appendChild(errorMsg);
+                }
+            } else {
+                confirmPasswordInput.classList.remove("border-red-500");
+                confirmPasswordInput.classList.remove("focus:border-red-500");
+                confirmPasswordInput.classList.remove("focus:ring-red-500");
+
+                const errorMsg = confirmPasswordInput.nextElementSibling;
+                if (errorMsg && errorMsg.classList.contains("password-error")) {
+                    errorMsg.remove();
+                }
+            }
+        }
+    }
+
+    _showNotification(message, type = "info") {
+        const notificationArea = this.querySelector("#registerNotification");
+        if (!notificationArea) {
+            console.error("View: #registerNotification element not found!");
+            return;
+        }
+
+        const bgColor =
+            type === "error"
+                ? "bg-red-500"
+                : type === "success"
+                    ? "bg-green-500"
+                    : "bg-blue-500";
+        const notificationId = `notif-${Date.now()}`;
+
+        const alertDiv = document.createElement("div");
+        alertDiv.id = notificationId;
+        alertDiv.className = `${bgColor} text-white p-4 rounded-lg shadow-xl mb-3 flex items-center transform transition-all duration-300 translate-x-0 opacity-100 scale-100`;
+        alertDiv.setAttribute("role", "alert");
+
+        // Add appropriate icon based on notification type
+        const iconSvg = document.createElement("div");
+        iconSvg.className = "mr-3 flex-shrink-0";
+
+        if (type === "error") {
+            iconSvg.innerHTML = `<svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
       </svg>`;
-    } else if (type === "success") {
-      iconSvg.innerHTML = `<svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        } else if (type === "success") {
+            iconSvg.innerHTML = `<svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
       </svg>`;
-    } else {
-      iconSvg.innerHTML = `<svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        } else {
+            iconSvg.innerHTML = `<svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
         <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
       </svg>`;
+        }
+
+        alertDiv.appendChild(iconSvg);
+
+        const messageSpan = document.createElement("span");
+        messageSpan.textContent = message;
+        alertDiv.appendChild(messageSpan);
+
+        while (notificationArea.firstChild) {
+            notificationArea.removeChild(notificationArea.firstChild);
+        }
+        notificationArea.appendChild(alertDiv);
+
+        setTimeout(() => {
+            const activeNotif = this.querySelector(`#${notificationId}`);
+            if (activeNotif) {
+                activeNotif.classList.add("translate-x-0");
+            }
+        }, 10);
+
+        setTimeout(() => {
+            const activeNotif = this.querySelector(`#${notificationId}`);
+            if (activeNotif) {
+                activeNotif.classList.add("translate-x-full", "opacity-0");
+                activeNotif.addEventListener("transitionend", () =>
+                    activeNotif.remove()
+                );
+            }
+        }, 5000);
     }
 
-    alertDiv.appendChild(iconSvg);
-
-    const messageSpan = document.createElement("span");
-    messageSpan.textContent = message;
-    alertDiv.appendChild(messageSpan);
-
-    while (notificationArea.firstChild) {
-      notificationArea.removeChild(notificationArea.firstChild);
-    }
-    notificationArea.appendChild(alertDiv);
-
-    
-    setTimeout(() => {
-      const activeNotif = this.querySelector(`#${notificationId}`);
-      if (activeNotif) {
-        activeNotif.classList.add("translate-x-0");
-      }
-    }, 10);
-
-    
-    setTimeout(() => {
-      const activeNotif = this.querySelector(`#${notificationId}`);
-      if (activeNotif) {
-        activeNotif.classList.add("translate-x-full", "opacity-0");
-        activeNotif.addEventListener("transitionend", () =>
-          activeNotif.remove()
-        );
-      }
-    }, 5000);
-  }
-
-  showRegistrationError(message) {
-    console.error("View: Registration Error -", message);
-    this._showNotification(message, "error");
-  }
-
-  showRegistrationSuccess(message) {
-    console.log("View: Registration Success -", message);
-    this._showNotification(message, "success");
-  }
-
-  showInfo(message) {
-    console.log("View: Info -", message);
-    this._showNotification(message, "info");
-  }
-
-  showLoading() {
-    console.log("View: Showing loading...");
-    const overlay = this.querySelector("#loadingOverlay");
-    if (overlay) {
-      overlay.classList.remove("hidden");
-      
-      overlay.offsetHeight;
-      overlay.classList.add("opacity-100");
-    } else {
-      console.error("View: #loadingOverlay element not found!");
+    showRegistrationError(message) {
+        console.error("View: Registration Error -", message);
+        this._showNotification(message, "error");
     }
 
-    this.querySelectorAll(
-      "#registerForm input, #registerForm button, #googleSignUpBtn, #emailSignUpBtnAlt"
-    ).forEach((el) => (el.disabled = true));
-  }
-
-  hideLoading() {
-    console.log("View: Hiding loading...");
-    const overlay = this.querySelector("#loadingOverlay");
-    if (overlay) {
-      overlay.classList.add("opacity-0");
-      setTimeout(() => {
-        overlay.classList.add("hidden");
-      }, 300); 
-    } else {
-      console.error("View: #loadingOverlay element not found!");
+    showRegistrationSuccess(message) {
+        console.log("View: Registration Success -", message);
+        this._showNotification(message, "success");
     }
 
-    this.querySelectorAll(
-      "#registerForm input, #registerForm button, #googleSignUpBtn, #emailSignUpBtnAlt"
-    ).forEach((el) => (el.disabled = false));
-  }
-
-  navigateTo(path) {
-    console.log(`View: Navigating to ${path}`);
-    if (path.startsWith("/")) {
-      window.location.hash = path.substring(1);
-    } else if (path.startsWith("#/")) {
-      window.location.hash = path;
-    } else {
-      window.location.hash = path;
+    showInfo(message) {
+        console.log("View: Info -", message);
+        this._showNotification(message, "info");
     }
-  }
+
+    showLoading() {
+        console.log("View: Showing loading...");
+        const overlay = this.querySelector("#loadingOverlay");
+        if (overlay) {
+            overlay.classList.remove("hidden");
+
+            overlay.offsetHeight;
+            overlay.classList.add("opacity-100");
+        } else {
+            console.error("View: #loadingOverlay element not found!");
+        }
+
+        this.querySelectorAll(
+            "#registerForm input, #registerForm button, #googleSignUpBtn, #emailSignUpBtnAlt"
+        ).forEach((el) => (el.disabled = true));
+    }
+
+    hideLoading() {
+        console.log("View: Hiding loading...");
+        const overlay = this.querySelector("#loadingOverlay");
+        if (overlay) {
+            overlay.classList.add("opacity-0");
+            setTimeout(() => {
+                overlay.classList.add("hidden");
+            }, 300);
+        } else {
+            console.error("View: #loadingOverlay element not found!");
+        }
+
+        this.querySelectorAll(
+            "#registerForm input, #registerForm button, #googleSignUpBtn, #emailSignUpBtnAlt"
+        ).forEach((el) => (el.disabled = false));
+    }
+
+    navigateTo(path) {
+        console.log(`View: Navigating to ${path}`);
+        if (path.startsWith("/")) {
+            window.location.hash = path.substring(1);
+        } else if (path.startsWith("#/")) {
+            window.location.hash = path;
+        } else {
+            window.location.hash = path;
+        }
+    }
 }
 
 customElements.define("register-page", RegisterPage);

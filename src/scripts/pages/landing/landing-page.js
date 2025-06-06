@@ -1,6 +1,7 @@
 class LandingPage extends HTMLElement {
     connectedCallback() {
         this.render();
+        this._addEventListeners();
     }
 
     render() {
@@ -23,7 +24,7 @@ class LandingPage extends HTMLElement {
                     </div>
                     <div class="flex space-x-4">
                         <a href="#/login" class="text-teal-700 font-medium hover:text-teal-800">Login</a>
-                        <a href="#" class="bg-teal-500 text-white px-4 py-2 rounded-md hover:bg-teal-600 transition">Sign Up</a>
+                        <a href="#/register" id="signupButton" class="bg-teal-500 text-white px-4 py-2 rounded-md hover:bg-teal-600 transition">Sign Up</a>
                     </div>
                 </div>
                 
@@ -40,8 +41,8 @@ class LandingPage extends HTMLElement {
                                 <p class="text-gray-600 mb-8 max-w-lg mx-auto md:mx-0">
                                     Feel free to use our application and start detecting acne on your face
                                 </p>
-                                <a href="#" class="inline-block bg-cyan-400 hover:bg-cyan-500 text-white font-medium rounded-full px-8 py-3 shadow-md transition-all">
-                                    Start Sign 
+                                <a href="#/register" id="startSignButton" class="inline-block bg-cyan-400 hover:bg-cyan-500 text-white font-medium rounded-full px-8 py-3 shadow-md transition-all">
+                                    Start Sign Up
                                 </a>
                             </div>
                             
@@ -127,23 +128,60 @@ class LandingPage extends HTMLElement {
                 </section>
             </div>
         `;
+    }
 
+    _addEventListeners() {
         // Add smooth scrolling to navigation links
-        this.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', (e) => {
+        this.querySelectorAll(".nav-link").forEach((link) => {
+            link.addEventListener("click", (e) => {
                 e.preventDefault();
-                const targetId = link.getAttribute('href');
+                const targetId = link.getAttribute("href");
                 const targetElement = document.querySelector(targetId);
                 if (targetElement) {
                     targetElement.scrollIntoView({
-                        behavior: 'smooth'
+                        behavior: "smooth",
                     });
                 }
             });
         });
+
+        // Add event handler for Sign Up button in nav bar
+        const signupButton = this.querySelector("#signupButton");
+        if (signupButton) {
+            signupButton.addEventListener("click", (e) => {
+                console.log("Sign Up button clicked in nav bar");
+                // Use hash-based navigation for SPA
+                window.location.hash = "/register";
+            });
+        } else {
+            console.error("Sign Up button not found in navigation");
+        }
+
+        // Add event handler for Start Sign Up button in hero section
+        const startSignButton = this.querySelector("#startSignButton");
+        if (startSignButton) {
+            startSignButton.addEventListener("click", (e) => {
+                console.log("Start Sign Up button clicked in hero section");
+                // Use hash-based navigation for SPA
+                window.location.hash = "/register";
+            });
+        } else {
+            console.error("Start Sign Up button not found in hero section");
+        }
+    }
+
+    navigateTo(path) {
+        console.log(`View: Navigating to ${path}`);
+        if (path.startsWith("/")) {
+            window.location.hash = path.substring(1);
+        } else if (path.startsWith("#/")) {
+            window.location.hash = path;
+        } else {
+            window.location.hash = path;
+        }
     }
 }
 
-customElements.define('landing-page', LandingPage);
+customElements.define("landing-page", LandingPage);
 
 export default LandingPage;
