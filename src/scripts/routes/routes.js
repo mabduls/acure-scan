@@ -6,6 +6,14 @@ const routes = {
     '/login': {
         template: '<login-page></login-page>',
         title: 'Login Page'
+    },
+    '/register': {
+        template: '<register-page></register-page>',
+        title: 'Register Page'
+    },
+    '/dashboard': {
+        template: '<dashboard-page></dashboard-page>',
+        title: 'Dashboard Page'
     }
 };
 

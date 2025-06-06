@@ -21,6 +21,10 @@ class App {
                 await this._initLandingPage()
             } else if (pathname === '/login') {
                 await this._initLoginPage()
+            }else if (pathname === '/register') {
+                await this._initRegisterPage()
+            }else if (pathname === '/dashboard') {
+                await this._initDashboardPage()
             }
         } catch (error) {
             console.error('Failed to render page:', error)
@@ -47,6 +51,22 @@ class App {
         const loginPage = this._content.querySelector('login-page')
         if (loginPage) {
             console.log('Login page initialized')
+        }
+    }
+
+    async _initRegisterPage() {
+        await customElements.whenDefined('register-page')
+        const registerPage = this._content.querySelector('register-page')
+        if (registerPage) {
+            console.log('Register page initialized')
+        }
+    }
+
+    async _initDashboardPage() {
+        await customElements.whenDefined('dashboard-page')
+        const dashboardPage = this._content.querySelector('dashboard-page')
+        if (dashboardPage) {
+            console.log('Dashboard page initialized')
         }
     }
 }

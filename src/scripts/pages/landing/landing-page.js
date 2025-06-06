@@ -41,7 +41,7 @@ class LandingPage extends HTMLElement {
         if (signUpButton) {
             signUpButton.addEventListener('click', (e) => {
                 e.preventDefault();
-                // navigateToUrl('/signup'); // Uncomment if you have a signup page
+                navigateToUrl('/register');
             });
         }
     }
