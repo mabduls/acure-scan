@@ -8,14 +8,20 @@ class DashboardPage extends HTMLElement {
         this.presenter = new DashboardPresenter(this);
     }
 
-    connectedCallback() {
+    async connectedCallback() {
         if (!this._checkAuth()) {
             navigateToUrl('/login');
             return;
         }
 
-        this.render();
+        await this.render();
         this.presenter.init();
+        this._ensureVisibility();
+    }
+
+    _ensureVisibility() {
+        this.style.display = 'block';
+        this.style.opacity = '1';
     }
 
     render() {
