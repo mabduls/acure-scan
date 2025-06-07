@@ -21,6 +21,10 @@ const routes = {
     }
 };
 
+function getAccessToken() {
+    return localStorage.getItem('userToken') || sessionStorage.getItem('userToken');
+}
+
 
 function navigateToUrl(url) {
     window.location.hash = `#${url}`; 
@@ -28,7 +32,7 @@ function navigateToUrl(url) {
 
 function checkAuth(route) {
     const isAuthenticated = !!getAccessToken();
-
+    
     // Jika route membutuhkan auth tapi user belum login
     if (route.requiresAuth && !isAuthenticated) {
         navigateToUrl('/login');
@@ -47,4 +51,6 @@ function checkAuth(route) {
     }
 
     return true;
-}{ routes, navigateToUrl, checkAuth }
+}
+
+export { routes, navigateToUrl, checkAuth, getAccessToken }
