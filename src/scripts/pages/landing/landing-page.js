@@ -4,6 +4,11 @@ import { navigateToUrl } from '../../routes/routes.js';
 
 class LandingPage extends HTMLElement {
     connectedCallback() {
+        if (this._checkAuth()) {
+            navigateToUrl('/dashboard');
+            return;
+        }
+
         this.render();
         this.setupEventListeners();
     }
@@ -44,6 +49,11 @@ class LandingPage extends HTMLElement {
                 navigateToUrl('/register');
             });
         }
+    }
+
+    _checkAuth() {
+        const token = localStorage.getItem('userToken') || sessionStorage.getItem('userToken');
+        return !!token;
     }
 }
 
