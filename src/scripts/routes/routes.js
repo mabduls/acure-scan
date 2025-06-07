@@ -47,5 +47,4 @@ function checkAuth(route) {
     }
 
     return true;
-}
-export { routes, navigateToUrl, checkAuth }
+}{ routes, navigateToUrl, checkAuth }
