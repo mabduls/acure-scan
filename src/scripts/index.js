@@ -16,6 +16,16 @@ if (module.hot) {
   });
 }
 
+
+import "./pages/landing/landing-page.js";
+import "./pages/auth/login/login-page.js";
+import "./pages/artikel/artikel-page.js";
+import "./pages/artikel/artikel-detail-page.js";
+import "./pages/home/home-page.js";
+import "./pages/history/history-page.js";
+import "./pages/result/scan-result-page.js";
+
+
 async function safeDefine(name, importPromise) {
   if (!customElements.get(name)) {
     try {
@@ -32,9 +42,12 @@ async function safeDefine(name, importPromise) {
 
 async function initializeApp() {
   try {
+    // Dynamically import any components not directly imported above
     await Promise.all([
-      safeDefine("landing-page", import("./pages/landing/landing-page")),
-      safeDefine("login-page", import("./pages/auth/login/login-page.js")),
+      safeDefine(
+        "register-page",
+        import("./pages/auth/register/register-page.js")
+      ),
     ]);
 
     const app = new App({
@@ -57,10 +70,10 @@ async function initializeApp() {
   } catch (error) {
     console.error("Application initialization failed:", error);
     document.getElementById("mainContent").innerHTML = `
-            <div style="color: white; text-align: center; padding: 20px;">
-                <h2>Application Error</h2>
-                <p>Sorry, something went wrong. Please try again later.</p>
-            </div>
+      <div style="color: white; text-align: center; padding: 20px;">
+        <h2>Application Error</h2>
+        <p>Sorry, something went wrong. Please try again later.</p>
+      </div>
     `;
   }
 }
