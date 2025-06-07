@@ -24,20 +24,14 @@ function navigateToUrl(url) {
 
 function checkAuth(route) {
     const isAuthenticated = !!getAccessToken();
-    const currentPath = window.location.hash.replace('#', '') || '/';
 
-    // List of routes that should be blocked when authenticated
-    const blockedRoutesWhenAuthenticated = ['/', '/login', '/register'];
-
-    // If user is authenticated and tries to access blocked routes
-    if (isAuthenticated && blockedRoutesWhenAuthenticated.includes(currentPath)) {
-        navigateToUrl('/home');
+    if (route.requiresAuth && !isAuthenticated) {
+        navigateToUrl('/');
         return false;
     }
 
-    // If route requires auth but user isn't authenticated
-    if (route.requiresAuth && !isAuthenticated) {
-        navigateToUrl('/login');
+    if (!route.requiresAuth && isAuthenticated && window.location.hash === '#/') {
+        navigateToUrl('/home');
         return false;
     }
 
