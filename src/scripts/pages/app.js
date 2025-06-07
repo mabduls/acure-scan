@@ -1,5 +1,6 @@
 import { routes } from '../routes/routes'
 import { getActivePathname, parsePathname } from '../routes/url-parser'
+import { checkAuth, navigateToUrl } from '../utils/auth-check';
 
 class App {
     constructor({ content }) {
@@ -15,15 +16,22 @@ class App {
             if (id) routePattern += '/:id'
 
             const route = routes[pathname] || routes['/']
+
+            const authCheck = checkAuth(pathname);
+            if (!authCheck.allowed) {
+                navigateToUrl(authCheck.redirect);
+                return;
+            }
+
             this._content.innerHTML = route.template
 
             if (pathname === '/') {
                 await this._initLandingPage()
             } else if (pathname === '/login') {
                 await this._initLoginPage()
-            }else if (pathname === '/register') {
+            } else if (pathname === '/register') {
                 await this._initRegisterPage()
-            }else if (pathname === '/dashboard') {
+            } else if (pathname === '/dashboard') {
                 await this._initDashboardPage()
             }
         } catch (error) {

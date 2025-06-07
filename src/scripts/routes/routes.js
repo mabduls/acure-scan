@@ -24,14 +24,20 @@ function navigateToUrl(url) {
 
 function checkAuth(route) {
     const isAuthenticated = !!getAccessToken();
+    const currentPath = window.location.hash.replace('#', '') || '/';
 
-    if (route.requiresAuth && !isAuthenticated) {
-        navigateToUrl('/');
+    // List of routes that should be blocked when authenticated
+    const blockedRoutesWhenAuthenticated = ['/', '/login', '/register'];
+
+    // If user is authenticated and tries to access blocked routes
+    if (isAuthenticated && blockedRoutesWhenAuthenticated.includes(currentPath)) {
+        navigateToUrl('/home');
         return false;
     }
 
-    if (!route.requiresAuth && isAuthenticated && window.location.hash === '#/') {
-        navigateToUrl('/home');
+    // If route requires auth but user isn't authenticated
+    if (route.requiresAuth && !isAuthenticated) {
+        navigateToUrl('/login');
         return false;
     }
 
