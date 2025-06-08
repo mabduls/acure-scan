@@ -30,32 +30,15 @@ class MLService {
                 throw new Error('Model file not accessible');
             }
 
-            // PERBAIKAN: Gunakan loadLayersModel langsung untuk sequential model
-            try {
-                console.log('Loading as LayersModel (recommended for sequential models)...');
-                this.model = await tf.loadLayersModel(this.modelUrl, {
-                    // Opsi tambahan untuk handling error
-                    strict: false,
-                    onProgress: (fraction) => {
-                        console.log(`Loading progress: ${Math.round(fraction * 100)}%`);
-                    }
-                });
-                console.log('Model loaded successfully as LayersModel');
-            } catch (layersError) {
-                console.log('Failed to load as LayersModel, trying GraphModel:', layersError);
-
-                // Fallback ke GraphModel jika LayersModel gagal
-                try {
-                    this.model = await tf.loadGraphModel(this.modelUrl);
-                    console.log('Model loaded as GraphModel');
-                } catch (graphError) {
-                    console.error('Both loading methods failed:', {
-                        layersError: layersError.message,
-                        graphError: graphError.message
-                    });
-                    throw new Error(`Failed to load model with both methods. LayersModel error: ${layersError.message}`);
+            console.log('Loading as LayersModel...');
+            this.model = await tf.loadLayersModel(this.modelUrl, {
+                strict: false,
+                onProgress: (fraction) => {
+                    console.log(`Loading progress: ${Math.round(fraction * 100)}%`);
                 }
-            }
+            });
+
+            console.log('Model loaded successfully as LayersModel');
 
             // Log model info
             this.logModelInfo();
@@ -71,7 +54,6 @@ class MLService {
             this.isModelLoading = false;
             console.error('Failed to load model:', error);
 
-            // Berikan informasi lebih detail tentang error
             if (error.message.includes('Failed to fetch') || error.message.includes('404')) {
                 throw new Error(`Model file not found at: ${this.modelUrl}. Please check the path and ensure all weight files are present.`);
             } else if (error.message.includes('target variable')) {
@@ -103,6 +85,18 @@ class MLService {
                 } else if (this.model.output && this.model.output.shape) {
                     console.log('Output shape:', this.model.output.shape);
                 }
+
+                // Log layer information
+                console.log('Model layers:');
+                this.model.layers.forEach((layer, i) => {
+                    console.log(`Layer ${i}: ${layer.name} (${layer.className})`);
+                    if (layer.getConfig().units) {
+                        console.log(`  Units: ${layer.getConfig().units}`);
+                    }
+                    if (layer.getConfig().filters) {
+                        console.log(`  Filters: ${layer.getConfig().filters}`);
+                    }
+                });
 
                 // Log total parameters jika tersedia
                 if (this.model.countParams) {
@@ -157,7 +151,7 @@ class MLService {
                 throw new Error('Invalid image element provided');
             }
 
-            // Preprocess image dengan error handling yang lebih baik
+            // Preprocess image
             console.log('Preprocessing image...');
             let tensor;
 
