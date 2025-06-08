@@ -90,7 +90,7 @@ AcureScan is a web application that utilizes machine learning to detect, classif
 3. Start the development server:
 
     ```bash
-    npm run start-dev
+    npm run dev
     ```
 
 4. For production build:
