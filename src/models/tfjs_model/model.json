@@ -198,7 +198,7 @@
                         }
                     },
                     {
-                        "class_name": "Flatten",
+                        "class_name": "Flatten",    
                         "config": {
                             "name": "flatten",
                             "trainable": true,

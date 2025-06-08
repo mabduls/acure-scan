@@ -93,12 +93,6 @@ module.exports = {
 					globOptions: {
 						ignore: ['**/.DS_Store']
 					}
-				},
-				// Keep the original .tflite file as backup
-				{
-					from: path.resolve(__dirname, 'src/models/model-acne.tflite'),
-					to: path.resolve(__dirname, 'dist/models/model-acne.tflite'),
-					noErrorOnMissing: true
 				}
 			]
 		})
