@@ -11,7 +11,7 @@ class HomePage extends HTMLElement {
     const cameraTrigger = this.querySelector("#cameraTrigger");
     cameraTrigger.addEventListener("click", () => this.openCamera());
 
-    // History navigation (optional)
+    // History navigation
     const historyTrigger = this.querySelector("#historyTrigger");
     historyTrigger.addEventListener("click", () => {
       window.location.hash = "#/history";
@@ -19,147 +19,97 @@ class HomePage extends HTMLElement {
   }
 
   async openCamera() {
-    // Cek apakah sudah ada popup kamera, jika ada hapus dulu
+    // Remove existing popup if any (toggle)
     let existingPopup = this.querySelector("#cameraPopup");
     if (existingPopup) {
       existingPopup.remove();
-      return; // kalau mau toggle, bisa juga langsung return saja
+      return;
     }
 
-    // Buat popup untuk kamera dengan desain modern
-    const popup = document.createElement("div");
-    popup.id = "cameraPopup";
-    popup.style = `
-          position: fixed;
-          top: 0; left: 0; right: 0; bottom: 0;
-          background: linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,184,166,0.1) 100%);
-          backdrop-filter: blur(10px);
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          z-index: 1000;
-          animation: fadeIn 0.3s ease-out;
-        `;
-
-    // Add CSS animation keyframes
+    // Insert keyframe animations once
     if (!document.querySelector("#cameraAnimations")) {
       const style = document.createElement("style");
       style.id = "cameraAnimations";
       style.textContent = `
-            @keyframes fadeIn {
-              from { opacity: 0; transform: scale(0.9); }
-              to { opacity: 1; transform: scale(1); }
-            }
-            @keyframes slideUp {
-              from { transform: translateY(20px); opacity: 0; }
-              to { transform: translateY(0); opacity: 1; }
-            }
-            @keyframes pulse {
-              0%, 100% { transform: scale(1); }
-              50% { transform: scale(1.05); }
-            }
-            .camera-button:hover {
-              transform: translateY(-2px);
-              box-shadow: 0 8px 25px rgba(20,184,166,0.3);
-            }
-            .camera-button:active {
-              transform: translateY(0);
-            }
-          `;
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(1rem); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+        }
+        .camera-button:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 10px 20px rgba(6, 182, 212, 0.3);
+        }
+        .camera-button:active {
+          transform: translateY(0);
+          box-shadow: none;
+        }
+      `;
       document.head.appendChild(style);
     }
 
-    // Container untuk kamera dengan border modern
+    // Create popup overlay
+    const popup = document.createElement("div");
+    popup.id = "cameraPopup";
+    popup.className =
+      "fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-90 backdrop-blur-sm animate-fadeIn";
+
+    // Camera container (glass morphism style for light theme)
     const cameraContainer = document.createElement("div");
-    cameraContainer.style = `
-          background: rgba(255,255,255,0.1);
-          border: 2px solid rgba(255,255,255,0.2);
-          border-radius: 24px;
-          padding: 20px;
-          box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-          animation: slideUp 0.4s ease-out;
-          backdrop-filter: blur(20px);
-        `;
+    cameraContainer.className =
+      "bg-white rounded-3xl p-6 shadow-lg flex flex-col items-center animate-slideUp max-w-md w-full mx-4";
 
-    // Video untuk preview kamera dengan modern styling
+    // Video preview
     const video = document.createElement("video");
-    video.style = `
-          width: 90vw; 
-          max-width: 400px; 
-          border-radius: 16px; 
-          box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-          border: 3px solid rgba(255,255,255,0.3);
-          background: #000;
-        `;
     video.autoplay = true;
-    cameraContainer.appendChild(video);
+    video.className =
+      "w-full max-w-sm rounded-xl border border-gray-300 shadow-md bg-black";
 
-    // Container untuk tombol-tombol
+    // Buttons container
     const buttonContainer = document.createElement("div");
-    buttonContainer.style = `
-          display: flex;
-          gap: 16px;
-          margin-top: 24px;
-          justify-content: center;
-        `;
+    buttonContainer.className = "flex gap-6 mt-6";
 
-    // Tombol Jepret dengan desain modern
+    // Snap button (cyan accent)
     const snapBtn = document.createElement("button");
+    snapBtn.type = "button";
+    snapBtn.className =
+      "camera-button inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 px-6 py-3 font-semibold text-white shadow-md transition-transform duration-300 focus:outline-none focus:ring-4 focus:ring-cyan-300";
     snapBtn.innerHTML = `
-          <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24" style="margin-right: 8px;">
-            <path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/>
-          </svg>
-          Jepret
-        `;
-    snapBtn.className = "camera-button";
-    snapBtn.style = `
-          padding: 14px 28px;
-          border-radius: 50px;
-          background: linear-gradient(45deg, #14B8A6, #0891B2);
-          color: white;
-          font-weight: 600;
-          border: none;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          transition: all 0.3s ease;
-          box-shadow: 0 4px 15px rgba(20,184,166,0.4);
-          font-size: 16px;
-          letter-spacing: 0.5px;
-        `;
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z" />
+      </svg>
+      Jepret
+    `;
 
-    // Tombol Tutup dengan desain modern
+    // Close button (red accent)
     const closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.className =
+      "camera-button inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-red-500 to-red-600 px-5 py-2.5 font-semibold text-white shadow-md transition-transform duration-300 focus:outline-none focus:ring-4 focus:ring-red-300";
     closeBtn.innerHTML = `
-          <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" style="margin-right: 6px;">
-            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-          </svg>
-          Tutup
-        `;
-    closeBtn.className = "camera-button";
-    closeBtn.style = `
-          padding: 12px 24px;
-          border-radius: 50px;
-          background: linear-gradient(45deg, #EF4444, #DC2626);
-          color: white;
-          font-weight: 500;
-          border: none;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          transition: all 0.3s ease;
-          box-shadow: 0 4px 15px rgba(239,68,68,0.4);
-          font-size: 14px;
-        `;
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+      Tutup
+    `;
 
     buttonContainer.appendChild(snapBtn);
     buttonContainer.appendChild(closeBtn);
+
+    // Assemble popup
+    cameraContainer.appendChild(video);
     cameraContainer.appendChild(buttonContainer);
     popup.appendChild(cameraContainer);
     this.appendChild(popup);
 
-    // Akses kamera
     let stream;
     try {
       stream = await navigator.mediaDevices.getUserMedia({
@@ -167,28 +117,31 @@ class HomePage extends HTMLElement {
       });
       video.srcObject = stream;
     } catch (err) {
-      // Modern error popup
+      // Error message container
       const errorDiv = document.createElement("div");
-      errorDiv.style = `
-            background: linear-gradient(45deg, #EF4444, #DC2626);
-            color: white;
-            padding: 16px 24px;
-            border-radius: 12px;
-            margin-top: 16px;
-            box-shadow: 0 8px 25px rgba(239,68,68,0.3);
-            text-align: center;
-            font-weight: 500;
-          `;
+      errorDiv.className =
+        "mt-6 rounded-lg bg-red-100 border border-red-300 px-4 py-3 text-red-700 font-medium text-center shadow-sm";
       errorDiv.textContent = "Tidak dapat mengakses kamera: " + err.message;
-      cameraContainer.appendChild(errorDiv);
 
-      setTimeout(() => popup.remove(), 3000);
+      // Retry button
+      const retryBtn = document.createElement("button");
+      retryBtn.type = "button";
+      retryBtn.className =
+        "mt-3 px-4 py-2 rounded-md bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors";
+      retryBtn.textContent = "Coba Lagi";
+
+      retryBtn.addEventListener("click", () => {
+        errorDiv.remove();
+        retryBtn.remove();
+        this.openCamera();
+      });
+
+      cameraContainer.appendChild(errorDiv);
+      cameraContainer.appendChild(retryBtn);
       return;
     }
 
-    // Fungsi Jepret
     snapBtn.addEventListener("click", () => {
-      // Add capture animation
       snapBtn.style.animation = "pulse 0.3s ease-out";
 
       const canvas = document.createElement("canvas");
@@ -198,59 +151,42 @@ class HomePage extends HTMLElement {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       const imageDataUrl = canvas.toDataURL("image/png");
 
-      // Modern preview dengan animasi
+      // Preview container
       const previewContainer = document.createElement("div");
-      previewContainer.style = `
-            background: rgba(255,255,255,0.1);
-            border-radius: 16px;
-            padding: 16px;
-            margin-top: 20px;
-            animation: slideUp 0.4s ease-out;
-            border: 2px solid rgba(255,255,255,0.2);
-          `;
+      previewContainer.className =
+        "bg-white rounded-xl p-4 mt-6 border border-gray-300 shadow-md animate-slideUp max-w-sm mx-auto";
 
       const imgPreview = document.createElement("img");
       imgPreview.src = imageDataUrl;
-      imgPreview.style = `
-            max-width: 90vw; 
-            border-radius: 12px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            border: 2px solid rgba(255,255,255,0.3);
-          `;
+      imgPreview.alt = "Preview Foto";
+      imgPreview.className =
+        "w-full rounded-lg shadow-lg border border-gray-200";
 
       const successLabel = document.createElement("div");
       successLabel.textContent = "✓ Foto berhasil diambil!";
-      successLabel.style = `
-            color: #10B981;
-            font-weight: 600;
-            text-align: center;
-            margin-top: 12px;
-            padding: 8px;
-            background: rgba(16,185,129,0.1);
-            border-radius: 8px;
-            border: 1px solid rgba(16,185,129,0.3);
-          `;
+      successLabel.className =
+        "mt-3 text-green-600 font-semibold text-center bg-green-100 p-2 rounded-md border border-green-300";
 
       previewContainer.appendChild(imgPreview);
       previewContainer.appendChild(successLabel);
       cameraContainer.appendChild(previewContainer);
 
-      // Stop kamera setelah jepret dan hide elements
-      stream.getTracks().forEach((track) => track.stop());
+      // Stop camera & hide video and snap button
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+      }
       video.style.display = "none";
       snapBtn.style.display = "none";
     });
 
-    // Tutup popup & stop kamera
     closeBtn.addEventListener("click", () => {
       if (stream) {
         stream.getTracks().forEach((track) => track.stop());
       }
-      popup.style.animation = "fadeIn 0.3s ease-out reverse";
-      setTimeout(() => popup.remove(), 200);
+      popup.remove();
     });
 
-    // Close on backdrop click
+    // Close popup on backdrop click
     popup.addEventListener("click", (e) => {
       if (e.target === popup) {
         closeBtn.click();
@@ -260,105 +196,123 @@ class HomePage extends HTMLElement {
 
   render() {
     this.innerHTML = `
-          <div class="min-h-screen bg-gradient-to-b from-[#E5FFFB] to-white flex flex-col">
-            <!-- Header -->
-            <header class="bg-[#00667A] text-white py-4 px-6 flex justify-between items-center">
-              <div class="flex items-center space-x-2">
-                <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 
-                           2 6 4 4 6.5 4c1.74 0 3.41 1.04 4.13 2.56h1.74
-                           C14.09 5.04 15.76 4 17.5 4 20 4 22 6 22 8.5
-                           c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                </svg>
-                <span class="text-xl font-bold">AcureScan</span>
-              </div>
-              <div>
-                <svg class="w-9 h-9 text-white bg-cyan-600 rounded-full p-1" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 
-                           1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2
-                           c0-2.66-5.33-4-8-4z" />
-                </svg>
-              </div>
-            </header>
-    
-            <!-- Welcome Section -->
-            <section class="flex-grow px-6 py-8">
-              <div class="bg-gradient-to-l from-[#F5F5F5] to-[#D2F0EB] p-6 rounded-lg shadow-md max-w-2xl text-left">
-                <h1 class="text-2xl md:text-3xl font-bold text-teal-700 mb-2">Welcome!</h1>
-                <p class="text-gray-600 text-sm">Deteksi penyakit jerawat menggunakan teknologi machine learning</p>
-              </div>
-            </section>
-    
-            <section class="flex-grow px-6 py-8">
-              <div class="bg-[#e0f5ef] p-6 rounded-xl shadow-lg w-full max-w-6xl mx-auto space-y-6">
-    
-                <!-- Grid untuk 3 card pertama -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    
-                  <!-- Upload Gambar -->
-                  <div
-                    id="uploadTrigger"
-                    class="bg-[#E9F7FB] rounded-xl shadow-md p-6 flex flex-col items-center text-center hover:shadow-lg transition min-h-[260px] cursor-pointer"
-                  >
-                    <div class="mb-4 rounded-full bg-cyan-100 w-16 h-16 flex items-center justify-center overflow-hidden">
-                      <img src="/images/icon/upload.png" alt="Upload Gambar" class="w-20 h-20 object-contain" />
-                    </div>
-                    <input id="imageInput" type="file" accept="image/*" class="hidden" />
-                    <h3 class="font-semibold text-teal-700 mb-2">Upload Gambar</h3>
-                    <p class="text-sm text-gray-700">Upload photo from gallery</p>
-                  </div>
-    
-                  <!-- Using Camera -->
-                  <div
-                    id="cameraTrigger"
-                    class="bg-[#D8FAEC] rounded-xl shadow-md p-6 flex flex-col items-center text-center hover:shadow-lg transition min-h-[260px] cursor-pointer"
-                    role="button"
-                    tabindex="0"
-                    aria-label="Open camera to take picture"
-                  >
-                    <div class="mb-4 rounded-full bg-cyan-100 w-16 h-16 flex items-center justify-center overflow-hidden">
-                      <img src="/images/icon/camera.png" alt="Using Camera" class="w-20 h-20 object-contain" />
-                    </div>
-                    <h3 class="font-semibold text-teal-700 mb-2">Using Camera</h3>
-                    <p class="text-sm text-gray-700">Take the picture now</p>
-                  </div>
-    
-                  <!-- History -->
-                  <div
-                    id="historyTrigger"
-                    class="bg-[#EFFBED] rounded-xl shadow-md p-6 flex flex-col items-center text-center hover:shadow-lg transition min-h-[260px] cursor-pointer"
-                    role="button"
-                    tabindex="0"
-                    aria-label="Go to History Page"
-                  >
-                    <div class="mb-4 rounded-full bg-cyan-100 w-16 h-16 flex items-center justify-center overflow-hidden">
-                      <img src="/images/icon/histori.png" alt="History Icon" class="w-12 h-12 object-contain" />
-                    </div>
-                    <h3 class="font-semibold text-teal-700 mb-2">History</h3>
-                    <p class="text-sm text-gray-700">See your previous scan results</p>
-                  </div>
-    
-                </div>
-    
-                <!-- See Article (tanpa background bulat) -->
-                <a href="#/artikel" class="rounded-lg p-6 shadow-md flex flex-col md:flex-row items-center gap-6 cursor-pointer bg-gradient-to-r from-green-50 to-green-100 hover:shadow-lg transition-transform duration-300 active:scale-95">
-                  <img src="/images/news.jpeg" alt="Article Icon" class="w-36 h-36 object-contain transition-transform duration-300" />
-                  <div class="text-left flex-1">
-                    <h3 class="font-semibold text-teal-700 mb-2 text-xl">See Article</h3>
-                    <p class="text-gray-600 text-base">See the article about acne, its types, how to treat it, and its medicine</p>
-                  </div>
-                </a>
-              </div>
-            </section>
-    
-            <!-- Footer -->
-            <footer class="text-center text-gray-500 text-sm py-4">
-              © 2025 AcureScan. SkinCheck. All rights reserved.
-            </footer>
+      <style>
+        @keyframes fadeIn {
+          from {opacity: 0; transform: scale(0.95);}
+          to {opacity: 1; transform: scale(1);}
+        }
+        @keyframes slideUp {
+          from {opacity: 0; transform: translateY(1rem);}
+          to {opacity: 1; transform: translateY(0);}
+        }
+        @keyframes pulse {
+          0%, 100% {transform: scale(1);}
+          50% {transform: scale(1.05);}
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease forwards;
+        }
+        .animate-slideUp {
+          animation: slideUp 0.4s ease forwards;
+        }
+        .camera-button {
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .camera-button:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 10px 20px rgba(6, 182, 212, 0.3);
+        }
+        .camera-button:active {
+          transform: translateY(0);
+          box-shadow: none;
+        }
+      </style>
+      <div class="min-h-screen bg-white flex flex-col">
+        <header class="sticky top-0 bg-white border-b border-gray-200 shadow-sm z-30">
+          <div class="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
+            <div class="flex items-center space-x-3">
+              <svg class="w-8 h-8 text-cyan-600" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41 1.04 4.13 2.56h1.74C14.09 5.04 15.76 4 17.5 4 20 4 22 6 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+              </svg>
+              <span class="text-2xl font-extrabold text-gray-900">AcureScan</span>
+            </div>
+            <nav class="space-x-6 hidden md:flex text-gray-600 font-medium">
+              <a href="#" class="hover:text-cyan-600 transition">Home</a>
+              <a href="#/artikel" class="hover:text-cyan-600 transition">Article</a>
+              <a href="#/history" class="hover:text-cyan-600 transition">History</a>
+            </nav>
+            <div class="hidden md:flex">
+              <button class="bg-cyan-600 hover:bg-cyan-700 text-white font-semibold px-5 py-2 rounded-md transition focus:outline-none focus:ring-4 focus:ring-cyan-300">
+                Get Started
+              </button>
+            </div>
+            <button id="mobileMenuButton" aria-label="Open Menu" class="md:hidden text-gray-600 hover:text-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+              </svg>
+            </button>
           </div>
-        `;
+        </header>
+
+        <main class="flex-grow max-w-7xl mx-auto px-6 py-16">
+          <!-- Hero Section -->
+          <section class="max-w-4xl mx-auto text-center mb-20">
+            <h1 class="text-5xl font-extrabold text-gray-900 mb-4 leading-tight">
+              Deteksi Penyakit Jerawat dengan Teknologi Machine Learning
+            </h1>
+            <p class="text-gray-600 text-lg">
+              Akurasi tinggi untuk diagnosa kulit yang lebih baik.
+            </p>
+            <div class="mt-8">
+              <button id="uploadTrigger" class="inline-block px-6 py-3 bg-cyan-600 text-white rounded-lg font-semibold shadow-lg hover:bg-cyan-700 transition focus:outline-none focus:ring-4 focus:ring-cyan-300 cursor-pointer">
+                Upload Gambar
+                <input id="imageInput" type="file" accept="image/*" class="hidden" />
+              </button>
+              <button id="cameraTrigger" class="ml-4 inline-block px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold shadow-lg hover:bg-blue-700 transition focus:outline-none focus:ring-4 focus:ring-blue-300 cursor-pointer">
+                Buka Kamera
+              </button>
+            </div>
+          </section>
+
+          <!-- Features grid -->
+          <section class="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-5xl mx-auto">
+            <div id="uploadTrigger" class="cursor-pointer select-none rounded-xl bg-[#E9F7FB] shadow hover:shadow-lg transition p-8 flex flex-col items-center text-center">
+              <img src="/images/icon/upload.png" alt="Upload Icon" class="w-20 h-20 mb-4" />
+              <h3 class="text-xl font-semibold text-gray-900 mb-2">Upload Gambar</h3>
+              <p class="text-gray-600">Upload photo dari galeri untuk analisa</p>
+            </div>
+
+            <div id="cameraTrigger" class="cursor-pointer select-none rounded-xl bg-[#D8FAEC] shadow hover:shadow-lg transition p-8 flex flex-col items-center text-center" role="button" tabindex="0" aria-label="Buka kamera untuk ambil foto">
+              <img src="/images/icon/camera.png" alt="Camera Icon" class="w-20 h-20 mb-4" />
+              <h3 class="text-xl font-semibold text-gray-900 mb-2">Using Camera</h3>
+              <p class="text-gray-600">Ambil foto now dengan kamera</p>
+            </div>
+
+            <div id="historyTrigger" class="cursor-pointer select-none rounded-xl bg-[#EFFBED] shadow hover:shadow-lg transition p-8 flex flex-col items-center text-center" role="button" tabindex="0" aria-label="Lihat halaman riwayat">
+              <img src="/images/icon/histori.png" alt="History Icon" class="w-16 h-16 mb-4" />
+              <h3 class="text-xl font-semibold text-gray-900 mb-2">History</h3>
+              <p class="text-gray-600">Lihat hasil scan sebelumnya</p>
+            </div>
+          </section>
+
+          <!-- Article Section -->
+          <section class="max-w-4xl mx-auto mt-20 p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition cursor-pointer flex flex-col md:flex-row items-center gap-8" tabindex="0" role="link" aria-label="Lihat artikel tentang jerawat">
+            <img src="/images/news.jpeg" alt="Article Image" class="w-40 h-40 object-cover rounded-lg shadow-md flex-shrink-0" />
+            <div>
+              <h3 class="text-2xl font-semibold text-gray-900 mb-2">See Article</h3>
+              <p class="text-gray-600 leading-relaxed">
+                Baca artikel tentang jerawat, tipe-tipe, cara mengobati, dan obat-obatan terkait.
+              </p>
+            </div>
+          </section>
+        </main>
+
+        <footer class="text-center text-gray-500 text-sm py-10">
+          © 2025 AcureScan. SkinCheck. All rights reserved.
+        </footer>
+      </div>
+    `;
   }
 }
 
 customElements.define("home-page", HomePage);
-

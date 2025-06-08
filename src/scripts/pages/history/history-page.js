@@ -6,157 +6,74 @@ class HistoryPage extends HTMLElement {
 
   render() {
     this.innerHTML = `
-            <style>
-              .back-button {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-                padding: 0.5rem 1rem;
-                background: rgba(255, 255, 255, 0.1);
-                border-radius: 0.5rem;
-                color: white;
-                font-size: 0.875rem;
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                cursor: pointer;
-                transition: all 0.3s ease;
-              }
-              .back-button:hover {
-                background: rgba(255, 255, 255, 0.2);
-                transform: translateX(-2px);
-              }
-              .history-card {
-                transition: all 0.3s ease;
-                border: 1px solid rgba(0, 102, 122, 0.1);
-              }
-              .history-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(0, 102, 122, 0.15);
-                border-color: rgba(0, 102, 122, 0.2);
-              }
-              .image-placeholder {
-                background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-                border: 2px dashed #d1d5db;
-                position: relative;
-                overflow: hidden;
-              }
-              .image-placeholder::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: -100%;
-                width: 100%;
-                height: 100%;
-                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-                animation: shimmer 2s infinite;
-              }
-              @keyframes shimmer {
-                0% { left: -100%; }
-                100% { left: 100%; }
-              }
-              .info-label {
-                color: #00667A;
-                font-weight: 600;
-              }
-              .info-value {
-                color: #374151;
-                margin-left: 0.5rem;
-              }
-              .date-badge {
-                background: rgba(0, 102, 122, 0.1);
-                color: #00667A;
-                padding: 0.25rem 0.75rem;
-                border-radius: 1rem;
-                font-size: 0.75rem;
-                font-weight: 500;
-              }
-              .nav-button {
-                display: inline-flex;
-                align-items: center;
-                gap: 0.5rem;
-                padding: 0.75rem 1.5rem;
-                background: linear-gradient(135deg, #00667A 0%, #009CA6 100%);
-                color: white;
-                font-weight: 600;
-                border-radius: 0.5rem;
-                border: none;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                text-decoration: none;
-              }
-              .nav-button:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 20px rgba(0, 102, 122, 0.2);
-                background: linear-gradient(135deg, #005666 0%, #008A94 100%);
-              }
-            </style>
-            <div class="min-h-screen bg-gradient-to-b from-[#E5FFFB] to-white flex flex-col">
-              <!-- Header -->
-              <header class="bg-[#00667A] text-white py-4 px-6 flex justify-between items-center">
-                <div class="flex items-center space-x-2">
-                  <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5C2 6 4 4 6.5 4C8.24 4 9.91 5.04 10.63 6.56h1.74C14.09 5.04 15.76 4 17.5 4C20 4 22 6 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35z"/>
-                  </svg>
-                  <span class="text-xl font-bold">AcureScan</span>
+      <div class="min-h-screen bg-gradient-to-b from-[#E5FFFB] to-white flex flex-col">
+        <!-- Header -->
+        <header class="bg-[#00667A] text-white py-4 px-6 flex justify-between items-center">
+          <div class="flex items-center space-x-2">
+            <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5C2 6 4 4 6.5 4C8.24 4 9.91 5.04 10.63 6.56h1.74C14.09 5.04 15.76 4 17.5 4C20 4 22 6 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35z"/>
+            </svg>
+            <span class="text-xl font-bold">AcureScan</span>
+          </div>
+          
+          <!-- Navigation Menu -->
+          <div class="flex items-center space-x-4">
+            <button id="back-button" class="flex items-center gap-2 px-4 py-2 bg-white bg-opacity-10 rounded-md text-white border border-white border-opacity-20 hover:bg-opacity-20 transition">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+              </svg>
+              Kembali
+            </button>
+            
+            <div class="relative group">
+              <button class="flex items-center space-x-2 hover:bg-[#004b5d] px-3 py-2 rounded-lg transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+                <span class="text-sm">Menu</span>
+              </button>
+              
+              <!-- Dropdown Menu -->
+              <div class="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-xl invisible opacity-0 transform -translate-y-2 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 z-50">
+                <div class="py-2">
+                  <a href="#/dashboard" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Dashboard</a>
+                  <a href="#/artikel" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Artikel</a>
+                  <a href="#/" id="logoutBtn" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Logout</a>
                 </div>
-                
-                <!-- Navigation Menu -->
-                <div class="flex items-center space-x-4">
-                  <button id="back-button" class="back-button">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
-                    Kembali
-                  </button>
-                  
-                  <div class="relative group">
-                    <button class="flex items-center space-x-2 hover:bg-[#004b5d] px-3 py-2 rounded-lg transition-colors">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                      </svg>
-                      <span class="text-sm">Menu</span>
-                    </button>
-                    
-                    <!-- Dropdown Menu -->
-                    <div class="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-xl invisible opacity-0 transform -translate-y-2 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 z-50">
-                      <div class="py-2">
-                        <a href="#/dashboard" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Dashboard</a>
-                        <a href="#/artikel" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Artikel</a>
-                        <a href="#/" id="logoutBtn" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Logout</a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </header>
-      
-              <!-- Content -->
-              <section class="flex-grow px-4 py-8">
-                <div class="max-w-4xl mx-auto">
-                  <!-- Section Header -->
-                  <div class="mb-8">
-                    <h1 class="text-3xl font-bold text-[#00667A] mb-2">Riwayat Pemindaian</h1>
-                    <p class="text-gray-600">Berikut adalah riwayat pemindaian kulit Anda</p>
-                  </div>
-                  
-                  ${this.generateHistoryCards(3)}
-                  
-                  <!-- Navigation Button -->
-                  <div class="mt-8 text-center">
-                    <a href="#/dashboard" id="dashboard-button" class="nav-button">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                      </svg>
-                      Kembali ke Dashboard
-                    </a>
-                  </div>
-                </div>
-              </section>
-      
-              <!-- Footer -->
-              <footer class="text-center text-gray-500 text-sm py-4">
-                © 2025 AcureScan. SkinCheck. All rights reserved.
-              </footer>
+              </div>
             </div>
-          `;
+          </div>
+        </header>
+
+        <!-- Content -->
+        <section class="flex-grow px-4 py-8">
+          <div class="max-w-4xl mx-auto">
+            <!-- Section Header -->
+            <div class="mb-8">
+              <h1 class="text-3xl font-bold text-[#00667A] mb-2">Riwayat Pemindaian</h1>
+              <p class="text-gray-600">Berikut adalah riwayat pemindaian kulit Anda</p>
+            </div>
+            
+            ${this.generateHistoryCards(3)}
+            
+            <!-- Navigation Button -->
+            <div class="mt-8 text-center">
+              <a href="#/dashboard" id="dashboard-button" class="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-[#00667A] to-[#009CA6] text-white font-semibold rounded-md transition-transform transform hover:scale-105">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Kembali ke Dashboard
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center text-gray-500 text-sm py-4">
+          © 2025 AcureScan. SkinCheck. All rights reserved.
+        </footer>
+      </div>
+    `;
   }
 
   _setupEventListeners() {
@@ -215,36 +132,36 @@ class HistoryPage extends HTMLElement {
       .map((_, index) => {
         const data = sampleData[index] || sampleData[0];
         return `
-              <div class="history-card flex bg-gray-100 rounded-xl shadow-md p-6 gap-6 mb-6">
-                <div class="w-32 h-32 image-placeholder flex items-center justify-center text-xs text-center rounded-lg">
-                  <div class="text-gray-600 font-medium">
-                    <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    Foto Hasil Scan
-                  </div>
-                </div>
-                <div class="flex-1 space-y-3">
-                  <div class="flex justify-between items-start">
-                    <h3 class="font-semibold text-lg text-gray-800">Hasil Analisis</h3>
-                    <span class="date-badge">${data.date}</span>
-                  </div>
-                  <div class="space-y-2 text-sm">
-                    <p><span class="info-label">Acne Type:</span><span class="info-value">${data.acneType}</span></p>
-                    <p><span class="info-label">Handling Steps:</span><span class="info-value">${data.handling}</span></p>
-                    <p><span class="info-label">Treatment Medication:</span><span class="info-value">${data.medication}</span></p>
-                  </div>
-                  <div class="mt-4 flex justify-end">
-                    <a href="#/scan-result" class="text-sm text-[#00667A] hover:text-[#009CA6] transition-colors flex items-center gap-1">
-                      <span>Lihat Detail</span>
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                      </svg>
-                    </a>
-                  </div>
-                </div>
+          <div class="history-card flex bg-gray-100 rounded-xl shadow-md p-6 gap-6 mb-6">
+            <div class="w-32 h-32 image-placeholder flex items-center justify-center text-xs text-center rounded-lg">
+              <div class="text-gray-600 font-medium">
+                <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                Foto Hasil Scan
               </div>
-            `;
+            </div>
+            <div class="flex-1 space-y-3">
+              <div class="flex justify-between items-start">
+                <h3 class="font-semibold text-lg text-gray-800">Hasil Analisis</h3>
+                <span class="bg-[#00667A] text-white rounded-full px-3 py-1 text-xs">${data.date}</span>
+              </div>
+              <div class="space-y-2 text-sm">
+                <p><span class="font-semibold text-[#00667A]">Acne Type:</span> <span class="text-gray-700">${data.acneType}</span></p>
+                <p><span class="font-semibold text-[#00667A]">Handling Steps:</span> <span class="text-gray-700">${data.handling}</span></p>
+                <p><span class="font-semibold text-[#00667A]">Treatment Medication:</span> <span class="text-gray-700">${data.medication}</span></p>
+              </div>
+              <div class="mt-4 flex justify-end">
+                <a href="#/scan-result" class="text-sm text-[#00667A] hover:text-[#009CA6] transition-colors flex items-center gap-1">
+                  <span>Lihat Detail</span>
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
       })
       .join("");
   }

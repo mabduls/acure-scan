@@ -183,26 +183,21 @@ class ArtikelDetailPage extends HTMLElement {
 
   _showErrorMessage(message) {
     this.innerHTML = `
-        <div class="p-4 text-center">
-          <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded shadow-md">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                </svg>
-              </div>
-              <div class="ml-3">
-                <p class="text-red-700 font-medium">${message}</p>
-              </div>
+        <div class="p-6 max-w-xl mx-auto text-center">
+          <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded shadow-sm">
+            <div class="flex items-center justify-center">
+              <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+              </svg>
+              <p class="ml-3 text-red-700 font-semibold text-lg">${message}</p>
             </div>
           </div>
-          <button id="back-to-articles" class="mt-4 bg-[#00667A] text-white px-4 py-2 rounded hover:bg-[#004b5d] transition-colors">
+          <button id="back-to-articles" class="mt-6 bg-[#00667A] text-white px-6 py-2 rounded-full hover:bg-[#004b5d] transition-colors inline-block focus:outline-none focus:ring-2 focus:ring-[#00667A] focus:ring-offset-2">
             Kembali ke Daftar Artikel
           </button>
         </div>
       `;
 
-    // Add event listener to the back button
     const backButton = this.querySelector("#back-to-articles");
     if (backButton) {
       backButton.addEventListener("click", () => {
@@ -213,457 +208,143 @@ class ArtikelDetailPage extends HTMLElement {
 
   _renderArticle(artikel) {
     this.innerHTML = `
-        <style>
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-          
-          .artikel-container {
-            font-family: 'Inter', sans-serif;
-            line-height: 1.7;
-          }
-          
-          .article-header {
-            background: linear-gradient(135deg, #FFECDF 0%, #C5E7E1 100%);
-            position: relative;
-            overflow: hidden;
-          }
-          
-          .article-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at 30% 40%, rgba(0, 102, 122, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(0, 156, 166, 0.1) 0%, transparent 50%);
-          }
-          
-          .article-content {
-            background: #ffffff;
-            position: relative;
-            z-index: 1;
-          }
-          
-          .hero-image {
-            border-radius: 16px;
-            box-shadow: 0 20px 40px -10px rgba(0, 102, 122, 0.2);
-            transition: all 0.3s ease;
-            width: 100%;
-            height: auto;
-            max-width: 100%;
-            object-fit: cover;
-            image-rendering: auto;
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
-          }
-          
-          .hero-image:hover {
-            box-shadow: 0 25px 50px -15px rgba(0, 102, 122, 0.3);
-            transform: translateY(-5px);
-          }
-          
-          .section-divider {
-            width: 80px;
-            height: 4px;
-            background: linear-gradient(135deg, #00667A 0%, #009CA6 100%);
-            border-radius: 2px;
-            margin: 2rem 0;
-          }
-          
-          .content-section {
-            margin-bottom: 3rem;
-            padding: 2rem 0;
-          }
-          
-          .section-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #00667A;
-            margin-bottom: 1.5rem;
-            position: relative;
-            padding-left: 1rem;
-          }
-          
-          .section-title::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: linear-gradient(135deg, #00667A 0%, #009CA6 100%);
-            border-radius: 2px;
-          }
-          
-          .article-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-          }
-          
-          .article-list li {
-            margin-bottom: 1rem;
-            padding: 1rem 1.5rem;
-            background: #f8fafc;
-            border-left: 4px solid #009CA6;
-            border-radius: 0 8px 8px 0;
-            transition: all 0.3s ease;
-            position: relative;
-          }
-          
-          .article-list li:hover {
-            background: #f1f9f9;
-            transform: translateX(8px);
-            box-shadow: 0 4px 12px rgba(0, 156, 166, 0.15);
-          }
-          
-          .article-list li::before {
-            content: '•';
-            color: #009CA6;
-            font-size: 1.2rem;
-            position: absolute;
-            left: 0.5rem;
-            top: 1rem;
-          }
-          
-          .article-text {
-            color: #374151;
-            font-size: 1.1rem;
-            line-height: 1.8;
-            margin-bottom: 1.5rem;
-          }
-          
-          .intro-text {
-            font-size: 1.2rem;
-            color: #4b5563;
-            line-height: 1.8;
-            margin-bottom: 2rem;
-            padding: 2rem;
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-          }
-          
-          .back-button {
-            background: white;
-            border: 2px solid #00667A;
-            color: #00667A;
-            padding: 0.75rem 1.5rem;
-            border-radius: 50px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            text-decoration: none;
-            margin-bottom: 2rem;
-            cursor: pointer;
-          }
-          
-          .back-button:hover {
-            background: #00667A;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 102, 122, 0.3);
-          }
-          
-          .tips-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-          }
-          
-          .tip-card {
-            background: linear-gradient(135deg, #C5E7E1 0%, #A8DFD7 50%, #FFECDF 100%);
-            padding: 2rem;
-            border-radius: 16px;
-            text-align: center;
-            transition: transform 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-          }
-          
-          .tip-card:hover {
-            transform: translateY(-5px);
-          }
-          
-          .tip-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-          }
-          
-          .tip-text {
-            font-weight: 600;
-            color: #00667A;
-            font-size: 1.1rem;
-          }
-          
-          .article-meta {
-            background: #f8fafc;
-            padding: 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 2rem;
-            border: 1px solid #e2e8f0;
-          }
-          
-          .meta-badge {
-            background: #00667A;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            display: inline-block;
-          }
-          
-          @media (max-width: 768px) {
-            .section-title {
-              font-size: 1.5rem;
-            }
-            
-            .article-text {
-              font-size: 1rem;
-            }
-            
-            .intro-text {
-              font-size: 1.1rem;
-              padding: 1.5rem;
-            }
-            
-            .hero-image {
-              height: 250px;
-            }
-          }
-          
-          /* Navigation buttons */
-          .navigation-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 2rem;
-            gap: 1rem;
-          }
-          
-          .nav-button {
-            flex: 1;
-            text-align: center;
-            padding: 1rem;
-            border-radius: 10px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-          }
-          
-          .article-button {
-            background: linear-gradient(135deg, #C5E7E1 0%, #A8DFD7 100%);
-            color: #00667A;
-            border: 1px solid rgba(0, 102, 122, 0.1);
-          }
-          
-          .article-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 102, 122, 0.15);
-            background: linear-gradient(135deg, #A8DFD7 0%, #8FD8CC 100%);
-          }
-          
-          .dashboard-button {
-            background: linear-gradient(135deg, #00667A 0%, #009CA6 100%);
-            color: white;
-            border: 1px solid rgba(0, 102, 122, 0.1);
-          }
-          
-          .dashboard-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 102, 122, 0.25);
-            background: linear-gradient(135deg, #005666 0%, #008A94 100%);
-          }
-        </style>
-        
-        <div class="artikel-container">
-          <!-- Header Section -->
-          <div class="article-header py-16 px-4">
-            <div class="max-w-4xl mx-auto relative z-10">
-              <!-- Back Button -->
-              <button id="back-to-articles-list" class="back-button">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                </svg>
-                Kembali ke Artikel
-              </button>
-              
-              <!-- Article Meta -->
-              <div class="article-meta">
-                <span class="meta-badge">📚 Panduan Kesehatan Kulit</span>
-              </div>
-              
-              <!-- Article Title -->
-              <h1 class="text-4xl md:text-6xl font-bold bg-gradient-to-r from-[#00667A] via-[#009CA6] to-[#00667A] bg-clip-text text-transparent mb-6 leading-tight">
-                ${artikel.title}
-              </h1>
-              
-              <div class="section-divider"></div>
-            </div>
-          </div>
-  
-          <!-- Main Content -->
-          <div class="article-content">
-            <div class="max-w-4xl mx-auto px-4 py-8">
-              <!-- Hero Image and Introduction -->
-              <div class="mb-12">
-                <img src="${artikel.img}" alt="${
+      <div class="max-w-5xl mx-auto p-6 sm:p-12 font-sans text-gray-700 select-none">
+        <!-- Back Button -->
+        <button id="back-to-articles-list" class="mb-8 inline-flex items-center gap-2 px-5 py-2 border-2 border-[#00667A] rounded-full text-[#00667A] hover:bg-[#00667A] hover:text-white transition-transform transform focus:outline-none focus:ring-4 focus:ring-[#00667A]" aria-label="Kembali ke daftar artikel">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+          Kembali ke Artikel
+        </button>
+
+        <!-- Article Title -->
+        <h1 class="text-5xl font-extrabold text-[#00667A] mb-6 leading-tight break-words">
+          ${artikel.title}
+        </h1>
+        <div class="w-20 h-1 mb-12 rounded-full bg-gradient-to-r from-[#00667A] via-[#009CA6] to-[#00667A]"></div>
+
+        <!-- Hero Image -->
+        <img src="${artikel.img}" alt="${
       artikel.title
-    }" class="hero-image mb-8" style="height: 320px;" />
-                
-                <div class="intro-text">
-                  ${artikel.content}
-                </div>
-              </div>
-  
-              <!-- Content Sections -->
-              <article class="prose prose-lg max-w-none">
-                
-                <!-- Ciri-ciri Section -->
-                <section class="content-section">
-                  <h2 class="section-title">Ciri-ciri dan Gejala</h2>
-                  <p class="article-text">
-                    Berikut adalah karakteristik utama yang dapat membantu Anda mengidentifikasi kondisi ini:
-                  </p>
-                  <ul class="article-list">
-                    ${artikel.ciri.map((item) => `<li>${item}</li>`).join("")}
-                  </ul>
-                </section>
-  
-                <div class="section-divider mx-0"></div>
-  
-                <!-- Penyebab Section -->
-                <section class="content-section">
-                  <h2 class="section-title">Penyebab dan Faktor Risiko</h2>
-                  <p class="article-text">
-                    Memahami penyebab kondisi ini sangat penting untuk pencegahan dan penanganan yang tepat:
-                  </p>
-                  <ul class="article-list">
-                    ${artikel.penyebab
-                      .map((item) => `<li>${item}</li>`)
-                      .join("")}
-                  </ul>
-                </section>
-  
-                <div class="section-divider mx-0"></div>
-  
-                <!-- Penanganan Section -->
-                <section class="content-section">
-                  <h2 class="section-title">Cara Mengatasi dan Pengobatan</h2>
-                  <p class="article-text">
-                    Terdapat berbagai metode penanganan yang dapat dilakukan, mulai dari perawatan mandiri hingga bantuan medis profesional:
-                  </p>
-                  <ul class="article-list">
-                    ${artikel.penanganan
-                      .map((item) => `<li>${item}</li>`)
-                      .join("")}
-                  </ul>
-                </section>
-  
-                <div class="section-divider mx-0"></div>
-  
-                <!-- Pencegahan Section -->
-                <section class="content-section">
-                  <h2 class="section-title">Pencegahan dan Perawatan</h2>
-                  <p class="article-text">
-                    Langkah-langkah pencegahan berikut dapat membantu mengurangi risiko terjadinya kondisi ini:
-                  </p>
-                  <ul class="article-list">
-                    ${artikel.pencegahan
-                      .map((item) => `<li>${item}</li>`)
-                      .join("")}
-                  </ul>
-                </section>
-  
-                <div class="section-divider mx-0"></div>
-  
-                <!-- Tips Section -->
-                <section class="content-section">
-                  <h2 class="section-title">Tips Penting untuk Diingat</h2>
-                  <p class="article-text">
-                    Berikut adalah beberapa tips penting yang perlu Anda ingat dalam menangani kondisi kulit ini:
-                  </p>
-                  
-                  <div class="tips-grid">
-                    <div class="tip-card">
-                      <div class="tip-icon">✅</div>
-                      <p class="tip-text">Jaga kebersihan kulit dengan rutin dan konsisten</p>
-                    </div>
-                    <div class="tip-card">
-                      <div class="tip-icon">🚫</div>
-                      <p class="tip-text">Hindari memencet atau menyentuh area yang bermasalah</p>
-                    </div>
-                    <div class="tip-card">
-                      <div class="tip-icon">👨‍⚕️</div>
-                      <p class="tip-text">Konsultasikan dengan dokter kulit untuk penanganan optimal</p>
-                    </div>
-                  </div>
-                </section>
-                
-                <!-- Navigation Buttons -->
-                <section class="content-section">
-                  <div class="navigation-buttons">
-                    <a href="#/artikel" id="all-articles-button" class="nav-button article-button">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                      </svg>
-                      Lihat Semua Artikel
-                    </a>
-                    <a href="#/dashboard" id="dashboard-button" class="nav-button dashboard-button">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                      </svg>
-                      Kembali ke Dashboard
-                    </a>
-                  </div>
-                </section>
-              </article>
+    }" class="w-full rounded-2xl shadow-lg mb-10 object-cover max-h-96 transition-transform duration-300 hover:scale-105" />
+
+        <!-- Introduction Content -->
+        <p class="text-lg mb-12 leading-relaxed text-gray-600 tracking-wide">
+          ${artikel.content}
+        </p>
+
+        <!-- Sections -->
+        <section class="mb-14">
+          <h2 class="text-2xl font-semibold text-[#00667A] mb-4 border-l-4 border-[#009CA6] pl-4">
+            Ciri-ciri dan Gejala
+          </h2>
+          <p class="mb-4 text-gray-700">
+            Berikut adalah karakteristik utama yang dapat membantu Anda mengidentifikasi kondisi ini:
+          </p>
+          <ul class="list-disc list-inside space-y-2 text-gray-600">
+            ${artikel.ciri.map((item) => `<li>${item}</li>`).join("")}
+          </ul>
+        </section>
+
+        <section class="mb-14">
+          <h2 class="text-2xl font-semibold text-[#00667A] mb-4 border-l-4 border-[#009CA6] pl-4">
+            Penyebab dan Faktor Risiko
+          </h2>
+          <p class="mb-4 text-gray-700">
+            Memahami penyebab kondisi ini sangat penting untuk pencegahan dan penanganan yang tepat:
+          </p>
+          <ul class="list-disc list-inside space-y-2 text-gray-600">
+            ${artikel.penyebab.map((item) => `<li>${item}</li>`).join("")}
+          </ul>
+        </section>
+
+        <section class="mb-14">
+          <h2 class="text-2xl font-semibold text-[#00667A] mb-4 border-l-4 border-[#009CA6] pl-4">
+            Cara Mengatasi dan Pengobatan
+          </h2>
+          <p class="mb-4 text-gray-700">
+            Terdapat berbagai metode penanganan yang dapat dilakukan, mulai dari perawatan mandiri hingga bantuan medis profesional:
+          </p>
+          <ul class="list-disc list-inside space-y-2 text-gray-600">
+            ${artikel.penanganan.map((item) => `<li>${item}</li>`).join("")}
+          </ul>
+        </section>
+
+        <section class="mb-14">
+          <h2 class="text-2xl font-semibold text-[#00667A] mb-4 border-l-4 border-[#009CA6] pl-4">
+            Pencegahan dan Perawatan
+          </h2>
+          <p class="mb-4 text-gray-700">
+            Langkah-langkah pencegahan berikut dapat membantu mengurangi risiko terjadinya kondisi ini:
+          </p>
+          <ul class="list-disc list-inside space-y-2 text-gray-600">
+            ${artikel.pencegahan.map((item) => `<li>${item}</li>`).join("")}
+          </ul>
+        </section>
+
+        <section class="mb-16">
+          <h2 class="text-2xl font-semibold text-[#00667A] mb-6 border-l-4 border-[#009CA6] pl-4">
+            Tips Penting untuk Diingat
+          </h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-gradient-to-r from-[#C5E7E1] to-[#FFECDF] rounded-2xl p-6 text-center shadow-md hover:shadow-xl transition-transform duration-300 hover:-translate-y-1 cursor-default">
+              <div class="text-4xl mb-3">✅</div>
+              <p class="font-semibold text-[#00667A]">Jaga kebersihan kulit dengan rutin dan konsisten</p>
+            </div>
+            <div class="bg-gradient-to-r from-[#C5E7E1] to-[#FFECDF] rounded-2xl p-6 text-center shadow-md hover:shadow-xl transition-transform duration-300 hover:-translate-y-1 cursor-default">
+              <div class="text-4xl mb-3">🚫</div>
+              <p class="font-semibold text-[#00667A]">Hindari memencet atau menyentuh area yang bermasalah</p>
+            </div>
+            <div class="bg-gradient-to-r from-[#C5E7E1] to-[#FFECDF] rounded-2xl p-6 text-center shadow-md hover:shadow-xl transition-transform duration-300 hover:-translate-y-1 cursor-default">
+              <div class="text-4xl mb-3">👨‍⚕️</div>
+              <p class="font-semibold text-[#00667A]">Konsultasikan dengan dokter kulit untuk penanganan optimal</p>
             </div>
           </div>
-          
-          <!-- Footer -->
-          <footer class="bg-gray-50 py-8 px-4 text-center text-gray-500 text-sm border-t">
-            <div class="max-w-4xl mx-auto">
-              © 2025 AcureScan. SkinCheck. All rights reserved.
-            </div>
-          </footer>
-        </div>
-      `;
+        </section>
+
+        <!-- Navigation Buttons -->
+        <section class="flex flex-col sm:flex-row sm:justify-between gap-4 mb-10">
+          <a href="#/artikel" id="all-articles-button" class="flex items-center gap-2 justify-center flex-1 py-3 px-6 rounded-lg bg-gradient-to-r from-[#C5E7E1] to-[#FFECDF] text-[#00667A] font-semibold shadow transition-transform duration-300 hover:shadow-lg hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-[#00667A]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+            </svg>
+            Lihat Semua Artikel
+          </a>
+          <a href="#/dashboard" id="dashboard-button" class="flex items-center gap-2 justify-center flex-1 py-3 px-6 rounded-lg bg-gradient-to-r from-[#00667A] to-[#009CA6] text-white font-semibold shadow transition-transform duration-300 hover:shadow-lg hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-[#00667A]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            Kembali ke Dashboard
+          </a>
+        </section>
+
+        <!-- Footer -->
+        <footer class="border-t border-gray-200 py-8 text-center text-gray-500 text-sm select-none max-w-5xl mx-auto">
+          © 2025 AcureScan. SkinCheck. All rights reserved.
+        </footer>
+      </div>
+    `;
   }
 
   _setupEventListeners() {
-    // Wait for the DOM to be fully loaded before adding event listeners
+    // Add event listeners after DOM is updated
     setTimeout(() => {
-      // Back button (top of page)
       const backButton = this.querySelector("#back-to-articles-list");
-      if (backButton) {
-        backButton.addEventListener("click", () => {
-          window.location.hash = "#/artikel";
-        });
-      }
+      backButton?.addEventListener("click", () => {
+        window.location.hash = "#/artikel";
+      });
 
-      // All articles button (bottom of page)
       const allArticlesButton = this.querySelector("#all-articles-button");
-      if (allArticlesButton) {
-        allArticlesButton.addEventListener("click", (e) => {
-          e.preventDefault();
-          window.location.hash = "#/artikel";
-        });
-      }
+      allArticlesButton?.addEventListener("click", (e) => {
+        e.preventDefault();
+        window.location.hash = "#/artikel";
+      });
 
-      // Dashboard button (bottom of page)
       const dashboardButton = this.querySelector("#dashboard-button");
-      if (dashboardButton) {
-        dashboardButton.addEventListener("click", (e) => {
-          e.preventDefault();
-          window.location.hash = "#/dashboard";
-        });
-      }
+      dashboardButton?.addEventListener("click", (e) => {
+        e.preventDefault();
+        window.location.hash = "#/dashboard";
+      });
     }, 100);
   }
 }
