@@ -1,3 +1,4 @@
+// routes.js - DIPERBAIKI
 const routes = {
     '/': {
         template: '<landing-page></landing-page>',
@@ -18,6 +19,11 @@ const routes = {
         template: '<dashboard-page></dashboard-page>',
         title: 'Dashboard Page',
         requiresAuth: true
+    },
+    '/result': {
+        template: '<result-page></result-page>',
+        title: 'Result Page',
+        requiresAuth: true
     }
 };
 
@@ -25,26 +31,61 @@ function getAccessToken() {
     return localStorage.getItem('userToken') || sessionStorage.getItem('userToken');
 }
 
+// PERBAIKAN: Fungsi untuk parsing URL dengan query parameters
+function parseUrlWithQuery(hash) {
+    // Remove leading # if present
+    const cleanHash = hash.startsWith('#') ? hash.substring(1) : hash;
+    
+    if (!cleanHash || cleanHash === '/') {
+        return { path: '/', query: {} };
+    }
+    
+    const [path, queryString] = cleanHash.split('?');
+    const query = {};
+    
+    if (queryString) {
+        const params = new URLSearchParams(queryString);
+        for (const [key, value] of params.entries()) {
+            query[key] = value;
+        }
+    }
+    
+    return { path: path || '/', query };
+}
 
 function navigateToUrl(url) {
-    window.location.hash = `#${url}`; 
+    console.log('Navigating to:', url);
+    
+    const cleanUrl = url.startsWith('#') ? url : `#${url}`;
+    
+    window.location.hash = cleanUrl;
+    
+    setTimeout(() => {
+        window.dispatchEvent(new HashChangeEvent('hashchange'));
+    }, 10);
+}
+
+function getCurrentPath() {
+    const { path } = parseUrlWithQuery(window.location.hash);
+    return path;
+}
+
+function getQueryParams() {
+    const { query } = parseUrlWithQuery(window.location.hash);
+    return query;
 }
 
 function checkAuth(route) {
     const isAuthenticated = !!getAccessToken();
     
-    // Jika route membutuhkan auth tapi user belum login
     if (route.requiresAuth && !isAuthenticated) {
         navigateToUrl('/login');
         return false;
     }
 
-    // Jika route tidak membutuhkan auth tapi user sudah login
     if (!route.requiresAuth && isAuthenticated) {
-        // Redirect dari landing page, login, atau register ke dashboard
-        if (window.location.hash === '#/' || 
-            window.location.hash === '#/login' || 
-            window.location.hash === '#/register') {
+        const currentPath = getCurrentPath();
+        if (currentPath === '/' || currentPath === '/login' || currentPath === '/register') {
             navigateToUrl('/dashboard');
             return false;
         }
@@ -53,4 +94,4 @@ function checkAuth(route) {
     return true;
 }
 
-export { routes, navigateToUrl, checkAuth, getAccessToken }
+export { routes, navigateToUrl, checkAuth, getAccessToken, parseUrlWithQuery, getCurrentPath, getQueryParams };

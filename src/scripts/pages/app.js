@@ -1,5 +1,5 @@
-import { routes } from '../routes/routes'
-import { getActivePathname, parsePathname } from '../routes/url-parser'
+// app.js - DIPERBAIKI
+import { routes, getCurrentPath, getQueryParams } from '../routes/routes'
 import { checkAuth } from '../routes/routes';
 
 class App {
@@ -9,13 +9,13 @@ class App {
 
     async renderPage() {
         try {
-            const pathname = getActivePathname()
-            const { resource, id } = parsePathname(pathname)
+            // PERBAIKAN: Gunakan getCurrentPath untuk mendapatkan path tanpa query
+            const pathname = getCurrentPath();
+            const queryParams = getQueryParams();
+            
+            console.log('Rendering page:', pathname, 'with params:', queryParams);
 
-            let routePattern = pathname === '/' ? '/' : `/${resource || ''}`
-            if (id) routePattern += '/:id'
-
-            const route = routes[pathname] || routes['/']
+            const route = routes[pathname] || routes['/'];
 
             if (!checkAuth(route)) {
                 return;
@@ -29,6 +29,7 @@ class App {
 
             await new Promise(resolve => setTimeout(resolve, 10));
 
+            // PERBAIKAN: Pass query parameters ke init functions
             if (pathname === '/') {
                 await this._initLandingPage()
             } else if (pathname === '/login') {
@@ -37,6 +38,8 @@ class App {
                 await this._initRegisterPage()
             } else if (pathname === '/dashboard') {
                 await this._initDashboardPage()
+            } else if (pathname === '/result') {
+                await this._initResultPage(queryParams)
             }
         } catch (error) {
             console.error('Failed to render page:', error)
@@ -79,6 +82,34 @@ class App {
         const dashboardPage = this._content.querySelector('dashboard-page')
         if (dashboardPage) {
             console.log('Dashboard page initialized')
+        }
+    }
+
+    // PERBAIKAN: Pass query parameters ke result page
+    async _initResultPage(queryParams = {}) {
+        try {
+            await customElements.whenDefined('result-page');
+            const resultPage = this._content.querySelector('result-page');
+            if (resultPage) {
+                console.log('Result page initialized with params:', queryParams);
+                
+                // PERBAIKAN: Pass scanId directly to result page
+                if (queryParams.scanId && resultPage.setScanId) {
+                    resultPage.setScanId(queryParams.scanId);
+                }
+                
+                // Load scan result
+                if (resultPage.loadScanResult) {
+                    await resultPage.loadScanResult();
+                }
+            }
+        } catch (error) {
+            console.error('Failed to init result page:', error);
+            this._content.innerHTML = `
+            <div class="error-message">
+                Failed to load results. <a href="#/dashboard">Back to Dashboard</a>
+            </div>
+        `;
         }
     }
 }
