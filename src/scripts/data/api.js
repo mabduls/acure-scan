@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:5000';
+export const BASE_URL = 'http://localhost:5000';
 
 export const register = async (name, email, password) => {
     try {
@@ -25,12 +25,13 @@ export const register = async (name, email, password) => {
 
 export const login = async (email, password) => {
     try {
-        const response = await fetch(`${BASE_URL}/api/auth/login`, { // Tambahkan /api
+        const response = await fetch(`${BASE_URL}/api/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ email, password }),
+            credentials: 'include' // Penting untuk cookies/session
         });
 
         const data = await response.json();
@@ -39,9 +40,41 @@ export const login = async (email, password) => {
             throw new Error(data.message || 'Login failed');
         }
 
-        return data;
+        return data.data; // Asumsikan token ada di data.data
     } catch (error) {
         console.error('Login error:', error);
+        throw error;
+    }
+};
+
+export const getUserScans = async (userId, token) => {
+    try {
+        if (!token) {
+            token = localStorage.getItem('userToken') || sessionStorage.getItem('userToken');
+        }
+
+        if (!token) {
+            throw new Error('No authentication token available');
+        }
+
+        const response = await fetch(`${BASE_URL}/api/scans?userId=${userId}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include'
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to fetch scans');
+        }
+
+        return data.data;
+    } catch (error) {
+        console.error('Failed to fetch scans:', error);
         throw error;
     }
 };

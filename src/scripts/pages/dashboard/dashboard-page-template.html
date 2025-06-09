@@ -13,6 +13,19 @@
         opacity: 1;
         pointer-events: auto;
     }
+
+    #historyTrigger {
+        transition: all 0.3s ease;
+    }
+
+    #historyTrigger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 103, 122, 0.15);
+    }
+
+    #historyTrigger:active {
+        transform: translateY(0);
+    }
 </style>
 
 <div class="min-h-screen bg-gradient-to-b from-[#E5FFFB] to-white flex flex-col">

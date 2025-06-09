@@ -20,6 +20,17 @@ class DashboardPresenter {
         this.setupClickOutsideHandler();
         this.setupImageUploadHandler();
         this.setupCropHandlers();
+        this.setupHistoryNavigation();
+    }
+
+    setupHistoryNavigation() {
+        const historyTrigger = this.view.querySelector('#historyTrigger');
+        if (historyTrigger) {
+            historyTrigger.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.view.redirectTo('/history');
+            });
+        }
     }
 
     setupDropdownHandler() {
@@ -37,11 +48,48 @@ class DashboardPresenter {
 
         logoutButton.addEventListener('click', async (e) => {
             e.preventDefault();
+
+            const confirmLogout = confirm('Are you sure you want to logout?');
+            if (!confirmLogout) return;
+
             try {
-                await this.handleLogout();
+                this.view.showNotification('Logging out...');
+
+                // Coba dua metode logout:
+                // 1. Panggil API backend
+                try {
+                    const response = await fetch('/api/auth/logout', {
+                        method: 'POST',
+                        credentials: 'include'
+                    });
+                    if (!response.ok) throw new Error('API logout failed');
+                } catch (apiError) {
+                    console.warn('API logout failed, using fallback:', apiError);
+                }
+
+                // 2. Firebase logout langsung dari client
+                try {
+                    const { auth, signOut } = await import('../../../server/config/firebase.js');
+                    await signOut(auth);
+                } catch (firebaseError) {
+                    console.error('Firebase logout error:', firebaseError);
+                }
+
+                // Bersihkan storage
+                this.clearAllStorage();
+
+                this.view.showNotification('Logout successful');
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 1000);
+
             } catch (error) {
                 console.error('Logout error:', error);
-                this.view.showNotification('Logout failed', false);
+                this.clearAllStorage();
+                this.view.showNotification('Logged out (with possible issues)');
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 1500);
             }
         });
     }
@@ -307,15 +355,81 @@ class DashboardPresenter {
     }
 
     async handleLogout() {
-        const success = await logoutUser();
+        try {
+            // Panggil service logout
+            const success = await logoutUser();
 
-        if (success) {
+            if (!success) throw new Error('Logout service failed');
+
+            // Clear semua storage
+            localStorage.clear();
+            sessionStorage.clear();
+
+            // Clear indexedDB jika digunakan
+            if (window.indexedDB) {
+                try {
+                    await this.clearIndexedDB();
+                } catch (dbError) {
+                    console.error('Failed to clear IndexedDB:', dbError);
+                }
+            }
+
+            // Tampilkan notifikasi
             this.view.showNotification('Logout successful');
+
+            // Redirect dengan full page reload
             setTimeout(() => {
-                this.view.redirectTo('/');
+                window.location.href = '/login';
+            }, 1000);
+
+        } catch (error) {
+            console.error('Logout error:', error);
+
+            // Fallback handling
+            localStorage.clear();
+            sessionStorage.clear();
+            this.view.showNotification('Logged out (with possible issues)');
+
+            setTimeout(() => {
+                window.location.href = '/login';
             }, 1500);
-        } else {
-            throw new Error('Failed to logout');
+        }
+    }
+
+    async clearIndexedDB() {
+        return new Promise((resolve) => {
+            if (!window.indexedDB) return resolve();
+
+            const dbs = ['scanResultsDB', 'userDataDB']; // Sesuaikan dengan nama DB Anda
+            let cleaned = 0;
+
+            dbs.forEach(dbName => {
+                const req = indexedDB.deleteDatabase(dbName);
+                req.onsuccess = () => {
+                    cleaned++;
+                    if (cleaned === dbs.length) resolve();
+                };
+                req.onerror = () => {
+                    cleaned++;
+                    if (cleaned === dbs.length) resolve();
+                };
+            });
+        });
+    }
+
+    async clearAllStorage() {
+        // Clear client-side storage
+        localStorage.clear();
+        sessionStorage.clear();
+
+        // Clear cookies
+        document.cookie.split(";").forEach((c) => {
+            document.cookie = c.replace(/^ +/, "").replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
+        });
+
+        // Clear IndexedDB
+        if (window.indexedDB) {
+            await this.clearIndexedDB();
         }
     }
 

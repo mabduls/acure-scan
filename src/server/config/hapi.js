@@ -22,7 +22,8 @@ const init = async () => {
                     'content-type',
                     'expires',
                     'last-modified',
-                    'pragma'
+                    'pragma',
+                    'authorization'
                 ]
             }
         }

@@ -32,21 +32,36 @@ class LandingPage extends HTMLElement {
     }
 
     setupEventListeners() {
-        // Add click event to login button
-        const loginButton = this.querySelector('a.text-teal-700');
+        // Updated selectors to match new design
+        const loginButton = this.querySelector('.login-btn');
         if (loginButton) {
             loginButton.addEventListener('click', (e) => {
                 e.preventDefault();
-                navigateToUrl('/login'); // Navigate to login page
+                navigateToUrl('/login');
             });
         }
 
-        // Optionally add click event to sign up button if needed
-        const signUpButton = this.querySelector('a.bg-teal-500');
+        const signUpButton = this.querySelector('.signup-btn');
         if (signUpButton) {
             signUpButton.addEventListener('click', (e) => {
                 e.preventDefault();
                 navigateToUrl('/register');
+            });
+        }
+
+        const startSignButton = this.querySelector('.start-btn');
+        if (startSignButton) {
+            startSignButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                navigateToUrl('/login');
+            });
+        }
+
+        const dashboardButton = this.querySelector('.dashboard-btn');
+        if (dashboardButton) {
+            dashboardButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                navigateToUrl('/login');
             });
         }
     }

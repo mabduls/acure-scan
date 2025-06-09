@@ -31,15 +31,17 @@ class App {
 
             // PERBAIKAN: Pass query parameters ke init functions
             if (pathname === '/') {
-                await this._initLandingPage()
+                await this._initLandingPage();
             } else if (pathname === '/login') {
-                await this._initLoginPage()
+                await this._initLoginPage();
             } else if (pathname === '/register') {
-                await this._initRegisterPage()
+                await this._initRegisterPage();
             } else if (pathname === '/dashboard') {
-                await this._initDashboardPage()
+                await this._initDashboardPage();
             } else if (pathname === '/result') {
                 await this._initResultPage(queryParams)
+            } else if (pathname === '/history') {
+                await this._initHistoryPage();
             }
         } catch (error) {
             console.error('Failed to render page:', error)
@@ -85,7 +87,14 @@ class App {
         }
     }
 
-    // PERBAIKAN: Pass query parameters ke result page
+    async _initHistoryPage() {
+        await customElements.whenDefined('history-page')
+        const historyPage = this._content.querySelector('history-page')
+        if (historyPage) {
+            console.log('History page initialized')
+        }
+    }
+
     async _initResultPage(queryParams = {}) {
         try {
             await customElements.whenDefined('result-page');
@@ -93,12 +102,10 @@ class App {
             if (resultPage) {
                 console.log('Result page initialized with params:', queryParams);
                 
-                // PERBAIKAN: Pass scanId directly to result page
                 if (queryParams.scanId && resultPage.setScanId) {
                     resultPage.setScanId(queryParams.scanId);
                 }
                 
-                // Load scan result
                 if (resultPage.loadScanResult) {
                     await resultPage.loadScanResult();
                 }

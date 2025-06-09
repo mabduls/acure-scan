@@ -1,7 +1,6 @@
-// firebase.js
 const { initializeApp } = require('firebase/app');
 const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } = require('firebase/auth');
-const { getFirestore, collection, doc, setDoc } = require('firebase/firestore');
+const { getFirestore, collection, doc, setDoc, getDocs, query, where, orderBy, getDoc, serverTimestamp } = require('firebase/firestore');
 
 const firebaseConfig = {
     apiKey: "AIzaSyC0E89l78RZxPmE-IUb7YIqhdx5WISs_1I",
@@ -13,22 +12,23 @@ const firebaseConfig = {
     measurementId: "G-4XL97CL9NF"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-// ⚠️ REMOVE analytics
-// const analytics = getAnalytics(app);
-
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-module.exports = {
-    auth,
-    db,
+module.exports = { 
+    auth, 
+    db, 
+    collection, 
+    doc, 
+    setDoc, 
+    getDocs, 
+    query, 
+    where, 
+    orderBy,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     signOut,
-    collection,
-    doc,
-    setDoc
+    getDoc,
+    serverTimestamp
 };

@@ -38,6 +38,7 @@ async function initializeApp() {
             safeDefine('register-page', import('./pages/auth/register/register-page')),
             safeDefine('dashboard-page', import('./pages/dashboard/dashboard-page')),
             safeDefine('result-page', import('./pages/result/result-page')),
+            safeDefine('history-page', import('./pages/history/history-page')),
         ]);
 
         const app = new App({

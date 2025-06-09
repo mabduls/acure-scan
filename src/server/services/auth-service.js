@@ -1,3 +1,4 @@
+// src/server/services/auth-service.js
 const {
     auth,
     db,
@@ -21,10 +22,13 @@ const registerUser = async (email, password, name) => {
             createdAt: new Date().toISOString()
         });
 
+        const token = await user.getIdToken();
+
         return {
             uid: user.uid,
             email: user.email,
-            name
+            name,
+            token: token
         };
     } catch (error) {
         throw new Error(error.message);
@@ -36,10 +40,13 @@ const loginUser = async (email, password) => {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
+        // PERBAIKAN: Gunakan getIdToken() bukan accessToken
+        const token = await user.getIdToken();
+
         return {
             uid: user.uid,
             email: user.email,
-            token: user.accessToken
+            token: token
         };
     } catch (error) {
         let message = 'Login failed';
@@ -56,6 +63,9 @@ const loginUser = async (email, password) => {
             case 'auth/wrong-password':
                 message = 'Incorrect password';
                 break;
+            case 'auth/invalid-credential':
+                message = 'Invalid email or password';
+                break;
             default:
                 message = error.message;
         }
@@ -66,13 +76,6 @@ const loginUser = async (email, password) => {
 const logoutUser = async () => {
     try {
         await signOut(auth);
-
-        // Clear any stored tokens or user data from localStorage/sessionStorage
-        localStorage.removeItem('userToken');
-        localStorage.removeItem('userData');
-        sessionStorage.removeItem('userToken');
-        sessionStorage.removeItem('userData');
-
         return true;
     } catch (error) {
         console.error('Logout error:', error);

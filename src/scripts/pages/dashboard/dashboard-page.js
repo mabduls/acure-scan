@@ -28,7 +28,6 @@ class DashboardPage extends HTMLElement {
         this.innerHTML = template;
     }
 
-    // Method untuk update UI
     showNotification(message, isSuccess = true) {
         const notification = document.createElement('div');
         notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg ${isSuccess ? 'bg-green-500' : 'bg-red-500'
@@ -47,7 +46,7 @@ class DashboardPage extends HTMLElement {
     }
 
     redirectTo(path) {
-        navigateToUrl(path); // Menggunakan router yang sama
+        navigateToUrl(path); 
     }
 }
 

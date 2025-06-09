@@ -24,6 +24,11 @@ const routes = {
         template: '<result-page></result-page>',
         title: 'Result Page',
         requiresAuth: true
+    },
+    '/history': {
+        template: '<history-page></history-page>',
+        title: 'History Page',
+        requiresAuth: true
     }
 };
 
@@ -31,9 +36,7 @@ function getAccessToken() {
     return localStorage.getItem('userToken') || sessionStorage.getItem('userToken');
 }
 
-// PERBAIKAN: Fungsi untuk parsing URL dengan query parameters
 function parseUrlWithQuery(hash) {
-    // Remove leading # if present
     const cleanHash = hash.startsWith('#') ? hash.substring(1) : hash;
     
     if (!cleanHash || cleanHash === '/') {

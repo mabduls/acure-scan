@@ -1,5 +1,6 @@
 import { login } from '../../../data/api.js';
 import { navigateToUrl } from '../../../routes/routes.js';
+import { initializeAuth } from '../../../utils/auth.js';
 
 class LoginPresenter {
     constructor(view) {
@@ -12,6 +13,7 @@ class LoginPresenter {
         if (form) {
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                initializeAuth();
 
                 const email = form.querySelector('#email').value;
                 const password = form.querySelector('#password').value;
@@ -34,12 +36,22 @@ class LoginPresenter {
                 try {
                     document.getElementById('loadingOverlay').classList.remove('hidden');
 
-                    const user = await login(email, password);
+                    const response = await login(email, password);
+                    const { token, uid, email: userEmail } = response;
 
-                    localStorage.setItem('userToken', user.token);
+                    // Simpan data user dengan lebih baik
+                    localStorage.setItem('userToken', token);
                     localStorage.setItem('userData', JSON.stringify({
-                        email: user.email,
-                        uid: user.uid
+                        email: userEmail,
+                        uid: uid,
+                        token: token
+                    }));
+
+                    // Juga simpan di sessionStorage untuk session yang lebih aman
+                    sessionStorage.setItem('userToken', token);
+                    sessionStorage.setItem('userData', JSON.stringify({
+                        email: userEmail,
+                        uid: uid
                     }));
 
                     document.getElementById('loadingOverlay').classList.add('hidden');
