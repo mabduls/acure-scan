@@ -1,3 +1,4 @@
+require('dotenv').config();
 const init = require('./config/hapi');
 const authRoutes = require('./routes/auth-routes');
 
