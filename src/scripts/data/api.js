@@ -2,42 +2,28 @@ export const BASE_URL = 'https://acure-scan-production.up.railway.app';
 
 export const register = async (name, email, password) => {
     try {
-        const { auth, createUserWithEmailAndPassword } = await import('../../server/config/firebase.js');
-        const firebaseUserCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const firebaseUser = firebaseUserCredential.user;
-
-        const firebaseToken = await firebaseUser.getIdToken();
-
         const response = await fetch(`${BASE_URL}/api/auth/register`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${firebaseToken}`
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 name,
                 email,
-                password,
-                firebaseUid: firebaseUser.uid 
+                password
             }),
         });
 
         const data = await response.json();
 
         if (!response.ok) {
-            try {
-                await firebaseUser.delete();
-            } catch (firebaseError) {
-                console.error('Failed to delete Firebase user:', firebaseError);
-            }
             throw new Error(data.message || 'Registration failed');
         }
 
-        return data;
+        return data.data;
     } catch (error) {
         console.error('Registration error:', error);
 
-        // Format pesan error Firebase menjadi lebih user-friendly
         let errorMessage = error.message;
         if (error.code) {
             switch (error.code) {
@@ -53,6 +39,8 @@ export const register = async (name, email, password) => {
                 default:
                     errorMessage = 'Registration failed. Please try again.';
             }
+        } else if (error.message.includes('already in use')) {
+            errorMessage = 'Email already registered';
         }
 
         throw new Error(errorMessage);

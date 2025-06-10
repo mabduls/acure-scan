@@ -17,6 +17,11 @@ class RegisterPresenter {
                 const confirmPassword = form.querySelector('#confirmPassword').value;
                 const name = form.querySelector('#name')?.value.trim() || email.split('@')[0];
 
+                if (!name || name.length < 3) {
+                    this._showNotification('Please enter a valid name (min 3 characters)', 'error');
+                    return;
+                }
+
                 // Validasi
                 if (password !== confirmPassword) {
                     this._showNotification('Passwords do not match', 'error');

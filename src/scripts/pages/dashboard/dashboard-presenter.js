@@ -81,7 +81,7 @@ class DashboardPresenter {
 
                 this.view.showNotification('Logout successful');
                 setTimeout(() => {
-                    window.location.href = '/#/login';
+                    window.location.href = '/#/';
                 }, 1000);
 
             } catch (error) {
