@@ -13,7 +13,7 @@ module.exports = {
                 'soft-teal': '#4FD1C7',
                 'warm-coral': '#FF6B6B',
                 'gentle-purple': '#9C88FF',
-                'fresh-green': '#51CF66'
+                'fresh-green': '#51CF66',
             }
         },
     },

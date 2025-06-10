@@ -12,7 +12,7 @@ class App {
             // PERBAIKAN: Gunakan getCurrentPath untuk mendapatkan path tanpa query
             const pathname = getCurrentPath();
             const queryParams = getQueryParams();
-            
+
             console.log('Rendering page:', pathname, 'with params:', queryParams);
 
             const route = routes[pathname] || routes['/'];
@@ -42,6 +42,10 @@ class App {
                 await this._initResultPage(queryParams)
             } else if (pathname === '/history') {
                 await this._initHistoryPage();
+            } else if (pathname === '/article') {
+                await this._initArticlePage();
+            } else if (pathname === '/article-detail') {
+                await this._initArticleDetailPage(queryParams);
             }
         } catch (error) {
             console.error('Failed to render page:', error)
@@ -87,6 +91,30 @@ class App {
         }
     }
 
+    async _initArticlePage() {
+        await customElements.whenDefined('article-page')
+        const articlePage = this._content.querySelector('article-page')
+        if (articlePage) {
+            console.log('Article page initialized')
+        }
+    }
+
+    async _initArticleDetailPage(queryParams = {}) {
+        await customElements.whenDefined('article-detail-page');
+        const articleDetailPage = this._content.querySelector('article-detail-page');
+        if (articleDetailPage) {
+            console.log('Article Detail page initialized with params:', queryParams);
+
+            if (articleDetailPage._presenter && queryParams.slug) {
+                articleDetailPage._presenter._articleSlug = queryParams.slug;
+            }
+
+            if (articleDetailPage._presenter) {
+                await articleDetailPage._presenter.init();
+            }
+        }
+    }
+
     async _initHistoryPage() {
         await customElements.whenDefined('history-page')
         const historyPage = this._content.querySelector('history-page')
@@ -101,11 +129,11 @@ class App {
             const resultPage = this._content.querySelector('result-page');
             if (resultPage) {
                 console.log('Result page initialized with params:', queryParams);
-                
+
                 if (queryParams.scanId && resultPage.setScanId) {
                     resultPage.setScanId(queryParams.scanId);
                 }
-                
+
                 if (resultPage.loadScanResult) {
                     await resultPage.loadScanResult();
                 }

@@ -29,6 +29,16 @@ const routes = {
         template: '<history-page></history-page>',
         title: 'History Page',
         requiresAuth: true
+    },
+    '/article': {
+        template: '<article-page></article-page>',
+        title: 'Article Page',
+        requiresAuth: true
+    },
+    '/article-detail': {
+        template: '<article-detail-page></article-detail-page>',
+        title: 'Article Detail Page',
+        requiresAuth: true
     }
 };
 
