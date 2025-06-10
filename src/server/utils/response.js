@@ -1,4 +1,4 @@
-export const successResponse = (h, data, message = 'Success', code = 200) => {
+const successResponse = (h, data, message = 'Success', code = 200) => {
     return h.response({
         status: 'success',
         message,
@@ -6,10 +6,12 @@ export const successResponse = (h, data, message = 'Success', code = 200) => {
     }).code(code);
 };
 
-export const errorResponse = (h, message = 'An error occurred', code = 400, data = null) => {
+const errorResponse = (h, message = 'An error occurred', code = 400, data = null) => {
     return h.response({
         status: 'error',
         message,
         data
     }).code(code);
 };
+
+module.exports = { successResponse, errorResponse };

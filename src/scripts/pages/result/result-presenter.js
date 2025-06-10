@@ -1,3 +1,6 @@
+import { db, doc, setDoc, collection, serverTimestamp } from '../../../server/config/firebase';
+import ScanService from '../../services/scan-service';
+
 class ResultPresenter {
     constructor(view) {
         this.view = view;
@@ -27,9 +30,55 @@ class ResultPresenter {
         }
 
         if (saveResultButton) {
-            saveResultButton.addEventListener('click', () => {
-                this.saveResult();
+            saveResultButton.addEventListener('click', async () => {
+                try {
+                    await this.saveResult();
+                    this.view.showNotification('Result saved successfully!', true);
+                } catch (error) {
+                    console.error('Failed to save result:', error);
+                    this.view.showNotification(`Failed to save: ${error.message}`, false);
+                }
             });
+        }
+    }
+
+    async saveResult() {
+        try {
+            const userData = JSON.parse(localStorage.getItem('userData'));
+            if (!userData || !userData.uid) {
+                throw new Error('User not logged in');
+            }
+
+            if (!this.scanResult) {
+                throw new Error('No scan result to save');
+            }
+
+            // Prepare scan data for Firestore
+            const scanData = {
+                ...this.scanResult,
+                createdAt: serverTimestamp(), // Gunakan server timestamp
+                userId: userData.uid,
+                userEmail: userData.email || '',
+                userName: userData.name || '',
+                confidence: this.scanResult.confidence || 0,
+                dominantAcne: this.scanResult.dominantAcne || 'Unknown',
+                recommendations: this.scanResult.recommendations || [],
+                image: this.scanResult.image || ''
+            };
+
+            // Simpan ke Firestore menggunakan ScanService
+            const scanId = await ScanService.saveScan(userData.uid, scanData);
+
+            // Update scanResult dengan ID yang baru dibuat
+            this.scanResult.scanId = scanId;
+
+            // Simpan juga ke localStorage untuk akses cepat
+            localStorage.setItem(`scan_${scanId}`, JSON.stringify(this.scanResult));
+
+            return scanId;
+        } catch (error) {
+            console.error('Error saving result:', error);
+            throw error;
         }
     }
 
@@ -74,26 +123,17 @@ class ResultPresenter {
                 resultImage.alt = `Scan result showing ${this.scanResult.dominantAcne}`;
             }
 
-            // Display timestamp
             const timestampElement = this.view.querySelector('#scanTimestamp');
             if (timestampElement && this.scanResult.timestamp) {
                 const date = new Date(this.scanResult.timestamp);
                 timestampElement.textContent = `Scanned on ${date.toLocaleDateString()} at ${date.toLocaleTimeString()}`;
             }
 
-            // Display all predictions
             this.displayPredictions();
 
-            // Display dominant result
             this.displayDominantResult();
 
-            // Display recommendations
             this.displayRecommendations();
-
-            // Add mock result indicator if applicable
-            if (this.scanResult.isMockResult) {
-                this.addMockResultIndicator();
-            }
 
         } catch (error) {
             console.error('Error displaying results:', error);
@@ -202,47 +242,22 @@ class ResultPresenter {
         `;
     }
 
-    addMockResultIndicator() {
-        const mainContent = this.view.querySelector('main .bg-white');
-        if (mainContent) {
-            const indicator = document.createElement('div');
-            indicator.className = 'mb-4 p-3 bg-orange-100 border border-orange-300 rounded-lg';
-            indicator.innerHTML = `
-                <div class="flex items-center">
-                    <svg class="w-5 h-5 text-orange-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <span class="text-orange-800 font-medium">Demo Mode: These are sample results for testing purposes.</span>
-                </div>
-            `;
-            mainContent.insertBefore(indicator, mainContent.firstChild);
-        }
+    generateScanId() {
+        return 'scan_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     }
 
-    saveResult() {
+    async saveToFirestore(userId, scanId, scanData) {
         try {
-            // Create a downloadable result summary
-            const resultSummary = {
-                timestamp: this.scanResult.timestamp,
-                dominantAcne: this.scanResult.dominantAcne,
-                confidence: this.scanResult.confidence,
-                predictions: this.scanResult.predictions,
-                recommendations: this.scanResult.recommendations
-            };
+            const userRef = doc(db, 'users', userId);
 
-            const dataStr = JSON.stringify(resultSummary, null, 2);
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const scanRef = doc(collection(userRef, 'scans'), scanId);
 
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(dataBlob);
-            link.download = `acne-scan-result-${new Date().toISOString().split('T')[0]}.json`;
-            link.click();
+            await setDoc(scanRef, scanData);
 
-            this.view.showNotification('Scan result saved successfully!');
-
+            console.log('Scan result saved to Firestore');
         } catch (error) {
-            console.error('Failed to save result:', error);
-            this.view.showNotification('Failed to save result', false);
+            console.error('Error saving to Firestore:', error);
+            throw new Error('Failed to save to database');
         }
     }
 }

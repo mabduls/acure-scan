@@ -8,13 +8,13 @@ class DashboardPage extends HTMLElement {
         this.presenter = new DashboardPresenter(this);
     }
 
-    async connectedCallback() {
+    connectedCallback() {
         if (!this._checkAuth()) {
             navigateToUrl('/login');
             return;
         }
 
-        await this.render();
+        this.render();
         this.presenter.init();
         this._ensureVisibility();
     }
@@ -28,11 +28,9 @@ class DashboardPage extends HTMLElement {
         this.innerHTML = template;
     }
 
-    // Method untuk update UI
     showNotification(message, isSuccess = true) {
         const notification = document.createElement('div');
-        notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg ${isSuccess ? 'bg-green-500' : 'bg-red-500'
-            } text-white`;
+        notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg ${isSuccess ? 'bg-green-500' : 'bg-red-500'} text-white`;
         notification.textContent = message;
         document.body.appendChild(notification);
 
@@ -47,7 +45,7 @@ class DashboardPage extends HTMLElement {
     }
 
     redirectTo(path) {
-        navigateToUrl(path); // Menggunakan router yang sama
+        navigateToUrl(path);
     }
 }
 

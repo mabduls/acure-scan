@@ -38,6 +38,10 @@ async function initializeApp() {
             safeDefine('register-page', import('./pages/auth/register/register-page')),
             safeDefine('dashboard-page', import('./pages/dashboard/dashboard-page')),
             safeDefine('result-page', import('./pages/result/result-page')),
+            safeDefine('result-detail-page', import('./pages/result/detail/result-detail-page')),
+            safeDefine('history-page', import('./pages/history/history-page')),
+            safeDefine('article-page', import('./pages/article/article-page')),
+            safeDefine('article-detail-page', import('./pages/article/detail/article-detail-page')),
         ]);
 
         const app = new App({

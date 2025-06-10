@@ -3,7 +3,7 @@ const { register, login, logout } = require('../controllers/auth-controller');
 const authRoutes = [
     {
         method: 'POST',
-        path: '/api/auth/register', // Hapus /api jika ingin menggunakan path yang sama dengan api.js
+        path: '/api/auth/register',
         handler: register,
         options: {
             auth: false
@@ -20,7 +20,10 @@ const authRoutes = [
     {
         method: 'POST',
         path: '/api/auth/logout',
-        handler: logout
+        handler: logout,
+        options: {
+            auth: false
+        }
     }
 ];
 

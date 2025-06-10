@@ -12,7 +12,7 @@ class App {
             // PERBAIKAN: Gunakan getCurrentPath untuk mendapatkan path tanpa query
             const pathname = getCurrentPath();
             const queryParams = getQueryParams();
-            
+
             console.log('Rendering page:', pathname, 'with params:', queryParams);
 
             const route = routes[pathname] || routes['/'];
@@ -31,15 +31,23 @@ class App {
 
             // PERBAIKAN: Pass query parameters ke init functions
             if (pathname === '/') {
-                await this._initLandingPage()
+                await this._initLandingPage();
             } else if (pathname === '/login') {
-                await this._initLoginPage()
+                await this._initLoginPage();
             } else if (pathname === '/register') {
-                await this._initRegisterPage()
+                await this._initRegisterPage();
             } else if (pathname === '/dashboard') {
-                await this._initDashboardPage()
+                await this._initDashboardPage();
             } else if (pathname === '/result') {
                 await this._initResultPage(queryParams)
+            } else if (pathname === '/result-detail') {
+                await this._initResultDetailPage(queryParams)
+            } else if (pathname === '/history') {
+                await this._initHistoryPage();
+            } else if (pathname === '/article') {
+                await this._initArticlePage();
+            } else if (pathname === '/article-detail') {
+                await this._initArticleDetailPage(queryParams);
             }
         } catch (error) {
             console.error('Failed to render page:', error)
@@ -85,20 +93,65 @@ class App {
         }
     }
 
-    // PERBAIKAN: Pass query parameters ke result page
+    async _initArticlePage() {
+        await customElements.whenDefined('article-page')
+        const articlePage = this._content.querySelector('article-page')
+        if (articlePage) {
+            console.log('Article page initialized')
+        }
+    }
+
+    async _initArticleDetailPage(queryParams = {}) {
+        await customElements.whenDefined('article-detail-page');
+        const articleDetailPage = this._content.querySelector('article-detail-page');
+        if (articleDetailPage) {
+            console.log('Article Detail page initialized with params:', queryParams);
+
+            if (articleDetailPage._presenter && queryParams.slug) {
+                articleDetailPage._presenter._articleSlug = queryParams.slug;
+            }
+
+            if (articleDetailPage._presenter) {
+                await articleDetailPage._presenter.init();
+            }
+        }
+    }
+
+    async _initHistoryPage() {
+        await customElements.whenDefined('history-page')
+        const historyPage = this._content.querySelector('history-page')
+        if (historyPage) {
+            console.log('History page initialized')
+        }
+    }
+
+    async _initResultDetailPage(queryParams = {}) {
+        await customElements.whenDefined('result-detail-page');
+        const resultDetailPage = this._content.querySelector('result-detail-page');
+        if (resultDetailPage) {
+            console.log('Result Detail page initialized with params:', queryParams);
+
+            if (resultDetailPage._presenter && queryParams.scanId) {
+                resultDetailPage._presenter._scanId = queryParams.scanId;
+            }
+
+            if (resultDetailPage._presenter) {
+                await resultDetailPage._presenter.init();
+            }
+        }
+    }
+
     async _initResultPage(queryParams = {}) {
         try {
             await customElements.whenDefined('result-page');
             const resultPage = this._content.querySelector('result-page');
             if (resultPage) {
                 console.log('Result page initialized with params:', queryParams);
-                
-                // PERBAIKAN: Pass scanId directly to result page
+
                 if (queryParams.scanId && resultPage.setScanId) {
                     resultPage.setScanId(queryParams.scanId);
                 }
-                
-                // Load scan result
+
                 if (resultPage.loadScanResult) {
                     await resultPage.loadScanResult();
                 }

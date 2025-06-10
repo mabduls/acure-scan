@@ -24,6 +24,26 @@ const routes = {
         template: '<result-page></result-page>',
         title: 'Result Page',
         requiresAuth: true
+    },
+    '/result-detail': {
+        template: '<result-detail-page></result-detail-page>',
+        title: 'Result Detail Page',
+        requiresAuth: true
+    },
+    '/history': {
+        template: '<history-page></history-page>',
+        title: 'History Page',
+        requiresAuth: true
+    },
+    '/article': {
+        template: '<article-page></article-page>',
+        title: 'Article Page',
+        requiresAuth: true
+    },
+    '/article-detail': {
+        template: '<article-detail-page></article-detail-page>',
+        title: 'Article Detail Page',
+        requiresAuth: true
     }
 };
 
@@ -31,9 +51,7 @@ function getAccessToken() {
     return localStorage.getItem('userToken') || sessionStorage.getItem('userToken');
 }
 
-// PERBAIKAN: Fungsi untuk parsing URL dengan query parameters
 function parseUrlWithQuery(hash) {
-    // Remove leading # if present
     const cleanHash = hash.startsWith('#') ? hash.substring(1) : hash;
     
     if (!cleanHash || cleanHash === '/') {
