@@ -13,7 +13,6 @@ class LoginPresenter {
         if (form) {
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                initializeAuth();
 
                 const email = form.querySelector('#email').value;
                 const password = form.querySelector('#password').value;
@@ -36,42 +35,35 @@ class LoginPresenter {
                 try {
                     document.getElementById('loadingOverlay').classList.remove('hidden');
 
-                    const response = await login(email, password);
-                    const { token, uid, email: userEmail } = response;
-
-                    // Simpan data user dengan lebih baik
-                    localStorage.setItem('userToken', token);
-                    localStorage.setItem('userData', JSON.stringify({
-                        email: userEmail,
-                        uid: uid,
-                        token: token
-                    }));
-
-                    // Juga simpan di sessionStorage untuk session yang lebih aman
-                    sessionStorage.setItem('userToken', token);
-                    sessionStorage.setItem('userData', JSON.stringify({
-                        email: userEmail,
-                        uid: uid
-                    }));
+                    // Panggil fungsi login yang sudah diperbaiki
+                    const userData = await login(email, password);
 
                     document.getElementById('loadingOverlay').classList.add('hidden');
 
-                    this._showNotification('Login successful! Redirecting...', 'success');
-
-                    setTimeout(() => {
-                        navigateToUrl('/dashboard');
-                    }, 1500);
+                    if (userData && userData.token) {
+                        this._showNotification('Login successful! Redirecting...', 'success');
+                        setTimeout(() => {
+                            navigateToUrl('/dashboard');
+                        }, 1500);
+                    } else {
+                        throw new Error('Login failed - no user data received');
+                    }
 
                 } catch (error) {
                     document.getElementById('loadingOverlay').classList.add('hidden');
+                    this._showFormError(error);
 
-                    this._showFormError(error)
-                    this._showNotification(error.message || 'Login failed', 'error');
+                    // Tampilkan pesan error yang lebih spesifik
+                    let errorMessage = error.message || 'Login failed';
+                    if (errorMessage.includes('auth/invalid-credential')) {
+                        errorMessage = 'Invalid email or password';
+                    }
+
+                    this._showNotification(errorMessage, 'error');
                     console.error('Login error:', error);
                 } finally {
                     submitButton.disabled = false;
                     submitButton.textContent = originalButtonText;
-
                     document.getElementById('loadingOverlay').classList.add('hidden');
                 }
             });

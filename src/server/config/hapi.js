@@ -25,6 +25,10 @@ const init = async () => {
                     'pragma',
                     'authorization'
                 ]
+            },
+            payload: {
+                parse: true,
+                allow: 'application/json'
             }
         }
     });
@@ -36,7 +40,7 @@ const init = async () => {
             register: async function (server) {
                 server.ext('onPreResponse', (request, h) => {
                     const response = request.response;
-                    
+
                     if (response.isBoom && response.output.statusCode === 404) {
                         // Handle preflight OPTIONS request
                         if (request.method === 'options') {
@@ -48,7 +52,7 @@ const init = async () => {
                             return corsResponse;
                         }
                     }
-                    
+
                     return h.continue;
                 });
             }

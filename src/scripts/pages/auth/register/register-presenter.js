@@ -12,42 +12,60 @@ class RegisterPresenter {
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
 
-                const email = form.querySelector('#email').value;
+                const email = form.querySelector('#email').value.trim();
                 const password = form.querySelector('#password').value;
                 const confirmPassword = form.querySelector('#confirmPassword').value;
-                const name = email.split('@')[0]; // Simple name from email
+                const name = form.querySelector('#name')?.value.trim() || email.split('@')[0];
 
-                // Basic validation
+                // Validasi
                 if (password !== confirmPassword) {
                     this._showNotification('Passwords do not match', 'error');
                     return;
                 }
 
+                if (password.length < 6) {
+                    this._showNotification('Password must be at least 6 characters', 'error');
+                    return;
+                }
+
+                if (!this._validateEmail(email)) {
+                    this._showNotification('Please enter a valid email address', 'error');
+                    return;
+                }
+
+                const submitButton = form.querySelector('button[type="submit"]');
+                const originalButtonText = submitButton.textContent;
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<span class="animate-pulse">Registering...</span>';
+
                 try {
-                    // Show loading overlay
                     document.getElementById('loadingOverlay').classList.remove('hidden');
 
-                    const user = await register(name, email, password);
+                    await register(name, email, password);
 
-                    // Hide loading overlay
                     document.getElementById('loadingOverlay').classList.add('hidden');
 
-                    // Show success notification
-                    this._showNotification('Registration successful!', 'success');
+                    this._showNotification('Registration successful! Redirecting to login...', 'success');
 
-                    // Redirect to login or do something with the user data
-                    console.log('Registered user:', user);
+                    setTimeout(() => {
+                        window.location.hash = '#/login';
+                    }, 2000);
 
                 } catch (error) {
-                    // Hide loading overlay
                     document.getElementById('loadingOverlay').classList.add('hidden');
-
-                    // Show error notification
-                    this._showNotification(error.message || 'Registration failed', 'error');
+                    this._showNotification(error.message || 'Registration failed. Please try again.', 'error');
                     console.error('Registration error:', error);
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalButtonText;
                 }
             });
         }
+    }
+
+    _validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
     }
 
     _showNotification(message, type = 'info') {

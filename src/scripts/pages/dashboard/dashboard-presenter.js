@@ -1,6 +1,7 @@
 import { logoutUser } from '../../../server/services/auth-service.js';
 import MLService from '../../services/ml-service.js';
 import { navigateToUrl } from '../../routes/routes.js';
+import { logout } from '../../data/api.js';
 
 class DashboardPresenter {
     constructor(view) {
@@ -66,40 +67,33 @@ class DashboardPresenter {
             try {
                 this.view.showNotification('Logging out...');
 
-                // Coba dua metode logout:
-                // 1. Panggil API backend
-                try {
-                    const response = await fetch('/api/auth/logout', {
-                        method: 'POST',
-                        credentials: 'include'
-                    });
-                    if (!response.ok) throw new Error('API logout failed');
-                } catch (apiError) {
-                    console.warn('API logout failed, using fallback:', apiError);
-                }
+                // Logout dari Firebase
+                const { auth, signOut } = await import('../../../server/config/firebase.js');
+                await signOut(auth);
 
-                // 2. Firebase logout langsung dari client
-                try {
-                    const { auth, signOut } = await import('../../../server/config/firebase.js');
-                    await signOut(auth);
-                } catch (firebaseError) {
-                    console.error('Firebase logout error:', firebaseError);
-                }
+                // Panggil API logout backend
+                await logout();
 
                 // Bersihkan storage
-                this.clearAllStorage();
+                localStorage.removeItem('userToken');
+                localStorage.removeItem('userData');
+                sessionStorage.clear();
 
                 this.view.showNotification('Logout successful');
                 setTimeout(() => {
-                    window.location.href = '/login';
+                    window.location.href = '/#/login';
                 }, 1000);
 
             } catch (error) {
                 console.error('Logout error:', error);
-                this.clearAllStorage();
+                // Fallback: tetap bersihkan storage meskipun logout gagal
+                localStorage.removeItem('userToken');
+                localStorage.removeItem('userData');
+                sessionStorage.clear();
+
                 this.view.showNotification('Logged out (with possible issues)');
                 setTimeout(() => {
-                    window.location.href = '/login';
+                    window.location.href = '/#/login';
                 }, 1500);
             }
         });
