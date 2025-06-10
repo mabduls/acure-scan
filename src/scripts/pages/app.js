@@ -40,6 +40,8 @@ class App {
                 await this._initDashboardPage();
             } else if (pathname === '/result') {
                 await this._initResultPage(queryParams)
+            } else if (pathname === '/result-detail') {
+                await this._initResultDetailPage(queryParams)
             } else if (pathname === '/history') {
                 await this._initHistoryPage();
             } else if (pathname === '/article') {
@@ -120,6 +122,22 @@ class App {
         const historyPage = this._content.querySelector('history-page')
         if (historyPage) {
             console.log('History page initialized')
+        }
+    }
+
+    async _initResultDetailPage(queryParams = {}) {
+        await customElements.whenDefined('result-detail-page');
+        const resultDetailPage = this._content.querySelector('result-detail-page');
+        if (resultDetailPage) {
+            console.log('Result Detail page initialized with params:', queryParams);
+
+            if (resultDetailPage._presenter && queryParams.scanId) {
+                resultDetailPage._presenter._scanId = queryParams.scanId;
+            }
+
+            if (resultDetailPage._presenter) {
+                await resultDetailPage._presenter.init();
+            }
         }
     }
 

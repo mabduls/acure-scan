@@ -198,7 +198,7 @@ class HistoryPresenter {
             card.addEventListener('click', () => {
                 const scanId = card.dataset.scanId;
                 if (scanId) {
-                    navigateToUrl(`/result?scanId=${scanId}`);
+                    navigateToUrl(`/result-detail?scanId=${scanId}`);
                 }
             });
         });

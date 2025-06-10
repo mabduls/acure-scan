@@ -21,6 +21,7 @@ class DashboardPresenter {
         this.setupImageUploadHandler();
         this.setupCropHandlers();
         this.setupHistoryNavigation();
+        this.setupArticleNavigation();
     }
 
     setupHistoryNavigation() {
@@ -29,6 +30,16 @@ class DashboardPresenter {
             historyTrigger.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.view.redirectTo('/history');
+            });
+        }
+    }
+
+    setupArticleNavigation() {
+        const articleTrigger = this.view.querySelector('#articleTrigger');
+        if (articleTrigger) {
+            articleTrigger.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.view.redirectTo('/article');
             });
         }
     }
@@ -154,9 +165,9 @@ class DashboardPresenter {
         const cropOverlay = this.view.querySelector('#cropOverlay');
 
         // Handle modal close
-        cancelButton.addEventListener('click', () => {
-            modal.classList.add('hidden');
-            this.resetCropState();
+        cancelButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.closeImageModal();
         });
 
         // Handle scan
@@ -765,6 +776,16 @@ class DashboardPresenter {
             console.error('Failed to save scan result:', error);
             return Date.now();
         }
+    }
+
+    closeImageModal() {
+        const modal = this.view.querySelector('#imageUploadModal');
+        modal.classList.add('hidden');
+        modal.style.display = 'none'; // Ensure it's hidden
+        this.resetCropState();
+
+        // Also reset the image data if needed
+        this.imageData = null;
     }
 }
 
