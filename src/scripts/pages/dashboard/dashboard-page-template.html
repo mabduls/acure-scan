@@ -335,6 +335,123 @@
         background-color: #FF8A65;
         color: white;
     }
+
+    .info-box {
+        background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%);
+        border-left: 4px solid #f59e0b;
+        border-radius: 12px;
+        padding: 16px;
+        margin: 12px 0;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .info-box:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(245, 158, 11, 0.15);
+    }
+
+    .info-box::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        border-radius: 0 2px 2px 0;
+    }
+
+    .warning-box {
+        background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+        border-left: 4px solid #ef4444;
+        border-radius: 12px;
+        padding: 16px;
+        margin: 12px 0;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .warning-box:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(239, 68, 68, 0.15);
+    }
+
+    .warning-box::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        border-radius: 0 2px 2px 0;
+    }
+
+    .info-icon {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        background: #f59e0b;
+        border-radius: 50%;
+        margin-right: 8px;
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .info-icon::after {
+        content: 'i';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+        font-style: normal;
+    }
+
+    .warning-icon {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        background: #ef4444;
+        border-radius: 50%;
+        margin-right: 8px;
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .warning-icon::after {
+        content: '!';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .pulse-gentle {
+        animation: pulseGentle 3s ease-in-out infinite;
+    }
+
+    @keyframes pulseGentle {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.8;
+        }
+    }
 </style>
 
 <div class="min-h-screen bg-pastel-mint">
@@ -551,10 +668,32 @@
     <!-- Image Upload Modal -->
     <div id="imageUploadModal"
         class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 hidden modal-backdrop">
-        <div class="bg-white rounded-2xl p-8 w-full max-w-3xl mx-4 modal-content modal-enter border border-gray-200">
+        <div class="bg-white rounded-2xl p-8 w-full max-w-4xl mx-4 modal-content modal-enter border border-gray-200">
             <div class="text-center mb-6">
                 <h3 class="text-2xl font-bold text-pastel-green mb-2">Crop Gambar</h3>
-                <p class="text-gray-600">Tahan dan seret untuk memotong gambar sesuai area yang diinginkan</p>
+                <p class="text-gray-600 mb-4">Tahan dan seret untuk memotong gambar sesuai area yang diinginkan</p>
+
+                <!-- Text Tambahan 1 -->
+                <div class="info-box">
+                    <div class="flex items-start">
+                        <div class="info-icon pulse-gentle"></div>
+                        <p class="text-amber-800 text-sm font-medium leading-relaxed">
+                            Proses Scan Image memakan waktu lama mohon tunggu sebentar, sampai muncul notifikasi "would you like to try scanning
+                            again?", maka tekan ok
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Text Tambahan 2 -->
+                <div class="warning-box">
+                    <div class="flex items-start">
+                        <div class="warning-icon pulse-gentle"></div>
+                        <p class="text-red-800 text-sm font-medium leading-relaxed">
+                            Jika setelah menekan oke, tunggu beberapa saat atau detik, kemudian tekan button "Mulai Scan" dibawah
+                            lagi
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <div class="relative mb-6 bg-gray-50 rounded-xl overflow-hidden"

@@ -24,45 +24,40 @@ class MLService {
             await tf.ready();
             console.log('TensorFlow.js backend ready:', tf.getBackend());
 
-            // Verifikasi akses file model terlebih dahulu
-            const isAccessible = await this.testModelPath();
-            if (!isAccessible) {
-                throw new Error('Model file not accessible');
+            // First try loading as LayersModel
+            try {
+                this.model = await tf.loadLayersModel(this.modelUrl, {
+                    strict: false,
+                    onProgress: (fraction) => {
+                        console.log(`Loading progress: ${Math.round(fraction * 100)}%`);
+                    }
+                });
+                console.log('Model loaded successfully as LayersModel');
+            } catch (layersError) {
+                console.warn('Failed to load as LayersModel, trying GraphModel:', layersError);
+                // Fallback to GraphModel if LayersModel fails
+                this.model = await tf.loadGraphModel(this.modelUrl);
+                console.log('Model loaded successfully as GraphModel');
             }
 
-            console.log('Loading as LayersModel...');
-            this.model = await tf.loadLayersModel(this.modelUrl, {
-                strict: false,
-                onProgress: (fraction) => {
-                    console.log(`Loading progress: ${Math.round(fraction * 100)}%`);
-                }
-            });
-
-            console.log('Model loaded successfully as LayersModel');
+            // Verify model input shape
+            if (!this.model.inputs || this.model.inputs.length === 0) {
+                throw new Error('Model has no defined inputs');
+            }
 
             // Log model info
             this.logModelInfo();
 
-            // Warm up model dengan error handling yang lebih baik
+            // Warm up model
             await this.warmUpModel();
 
             console.log('Model loaded and warmed up successfully');
             this.isModelLoading = false;
             return this.model;
-
         } catch (error) {
             this.isModelLoading = false;
             console.error('Failed to load model:', error);
-
-            if (error.message.includes('Failed to fetch') || error.message.includes('404')) {
-                throw new Error(`Model file not found at: ${this.modelUrl}. Please check the path and ensure all weight files are present.`);
-            } else if (error.message.includes('target variable')) {
-                throw new Error(`Model weight format incompatible. Please re-export the model with correct TensorFlow.js format.`);
-            } else if (error.message.includes('producer')) {
-                throw new Error(`Model metadata corrupted. Please re-convert the model using tensorflowjs_converter.`);
-            } else {
-                throw new Error(`Model loading failed: ${error.message}`);
-            }
+            throw new Error(`Model loading failed: ${error.message}`);
         }
     }
 
@@ -137,6 +132,12 @@ class MLService {
 
     async detectAcne(imageElement) {
         try {
+            const isCompatibleBrowser = this.checkBrowserCompatibility();
+            if (!isCompatibleBrowser) {
+                console.warn('Browser not fully compatible, using fallback');
+                return await this.detectAcneFallback(imageElement);
+            }
+
             console.log('Starting acne detection...');
             console.log('Image element dimensions:', imageElement.width, 'x', imageElement.height);
 
@@ -181,9 +182,9 @@ class MLService {
 
                     return imageTensor;
                 });
-            } catch (preprocessError) {
-                console.error('Preprocessing error:', preprocessError);
-                throw new Error('Failed to preprocess image. Please try a different image.');
+            } catch (error) {
+                console.error('Detection error:', error);
+                return await this.detectAcneFallback(imageElement);
             }
 
             // Run inference dengan timeout dan error handling yang lebih baik
@@ -243,6 +244,24 @@ class MLService {
             console.log('Using fallback detection due to error:', error.message);
             return await this.detectAcneFallback(imageElement);
         }
+    }
+
+    checkBrowserCompatibility() {
+        // Check for WebGL support
+        if (!tf.engine().backend || tf.getBackend() !== 'webgl') {
+            console.warn('WebGL not available or not functioning properly');
+            return false;
+        }
+
+        // Check for necessary APIs
+        if (typeof OffscreenCanvas === 'undefined' ||
+            !('createImageBitmap' in window) ||
+            !('gpu' in navigator)) {
+            console.warn('Missing required browser APIs');
+            return false;
+        }
+
+        return true;
     }
 
     async runPredictionWithTimeout(tensor, timeoutMs = 30000) {

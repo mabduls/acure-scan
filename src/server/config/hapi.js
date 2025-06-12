@@ -6,7 +6,10 @@ const init = async () => {
         host: process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost',
         routes: {
             cors: {
-                origin: ['*'],
+                origin: [
+                    'http://localhost:9000/', 
+                    'https://elaborate-duckanoo-4121a7.netlify.app/',
+                ],
                 credentials: true,
                 additionalHeaders: [
                     'cache-control',
