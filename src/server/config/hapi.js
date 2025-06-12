@@ -7,8 +7,8 @@ const init = async () => {
         routes: {
             cors: {
                 origin: [
-                    'http://localhost:9000/', 
-                    'https://elaborate-duckanoo-4121a7.netlify.app/',
+                    'http://localhost:9000', 
+                    'https://elaborate-duckanoo-4121a7.netlify.app',
                 ],
                 credentials: true,
                 additionalHeaders: [
