@@ -10,6 +10,7 @@ const init = async () => {
                     'http://localhost:9000',
                     'https://elaborate-duckanoo-4121a7.netlify.app',
                     'https://mabduls.github.io/acure-scan',
+                    'https://mabduls.github.io',
                 ],
                 credentials: true,
                 additionalHeaders: [
