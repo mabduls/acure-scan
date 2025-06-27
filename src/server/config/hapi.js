@@ -7,7 +7,7 @@ const init = async () => {
         routes: {
             cors: {
                 origin: [
-                    'http://localhost:9000', 
+                    'http://localhost:9000',
                     'https://elaborate-duckanoo-4121a7.netlify.app',
                     'https://mabduls.github.io/acure-scan',
                 ],
@@ -45,16 +45,15 @@ const init = async () => {
                 server.ext('onPreResponse', (request, h) => {
                     const response = request.response;
 
-                    if (response.isBoom && response.output.statusCode === 404) {
-                        // Handle preflight OPTIONS request
-                        if (request.method === 'options') {
-                            const corsResponse = h.response().code(200);
-                            corsResponse.header('Access-Control-Allow-Origin', 'http://localhost:9000');
-                            corsResponse.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-                            corsResponse.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, Origin, X-Requested-With');
-                            corsResponse.header('Access-Control-Allow-Credentials', 'true');
-                            return corsResponse;
-                        }
+                    if (response.isBoom && request.method === 'options') {
+                        const origin = request.headers.origin;
+
+                        const corsResponse = h.response().code(200);
+                        corsResponse.header('Access-Control-Allow-Origin', origin);
+                        corsResponse.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+                        corsResponse.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, Origin, X-Requested-With');
+                        corsResponse.header('Access-Control-Allow-Credentials', 'true');
+                        return corsResponse;
                     }
 
                     return h.continue;
