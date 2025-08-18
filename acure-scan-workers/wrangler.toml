@@ -1,0 +1,13 @@
+name = "acure-scan-api"
+main = "worker.js"
+compatibility_date = "2025-08-18"
+compatibility_flags = ["nodejs_compat"]  
+
+[build]
+command = "npm install"
+upload.format = "modules"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "acure-scan-db"
+database_id = "5d2a096a-5c2e-42c7-8465-fc12f979e8aa" 
