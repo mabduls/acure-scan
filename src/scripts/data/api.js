@@ -1,4 +1,4 @@
-export const BASE_URL = 'https://acure-scan-production.up.railway.app';
+export const BASE_URL = 'https://acure-scan-api.abdabdulziza.workers.dev'
 
 export const register = async (name, email, password) => {
     try {

@@ -49,6 +49,7 @@
         "firebase": "^11.9.0",
         "firebase-admin": "^13.4.0",
         "idb": "^8.0.2",
+        "itty-router": "^5.0.22",
         "tiny-slider": "^2.9.4",
         "workbox-cacheable-response": "^7.3.0",
         "workbox-precaching": "^7.3.0",
