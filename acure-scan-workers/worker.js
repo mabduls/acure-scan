@@ -5,9 +5,10 @@ const router = Router()
 
 // List of allowed origins
 const allowedOrigins = [
+    'http://localhost:9000',
     'https://elaborate-duckanoo-4121a7.netlify.app',
+    'https://mabduls.github.io/acure-scan',
     'https://mabduls.github.io',
-    'http://localhost:9000' // Untuk development lokal
 ]
 
 // Dynamic CORS headers
