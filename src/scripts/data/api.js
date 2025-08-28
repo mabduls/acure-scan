@@ -7,62 +7,28 @@ export const register = async (name, email, password) => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                name,
-                email,
-                password
-            }),
+            body: JSON.stringify({ name, email, password }),
         });
 
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.message || 'Registration failed');
+            throw new Error(data.error || data.message || 'Registration failed');
         }
 
         return data.data;
     } catch (error) {
         console.error('Registration error:', error);
-
-        let errorMessage = error.message;
-        if (error.code) {
-            switch (error.code) {
-                case 'auth/email-already-in-use':
-                    errorMessage = 'Email already registered';
-                    break;
-                case 'auth/invalid-email':
-                    errorMessage = 'Invalid email address';
-                    break;
-                case 'auth/weak-password':
-                    errorMessage = 'Password should be at least 6 characters';
-                    break;
-                default:
-                    errorMessage = 'Registration failed. Please try again.';
-            }
-        } else if (error.message.includes('already in use')) {
-            errorMessage = 'Email already registered';
-        }
-
-        throw new Error(errorMessage);
+        throw error;
     }
 };
 
 export const login = async (email, password) => {
     try {
-        // Pertama, login ke Firebase
-        const { auth, signInWithEmailAndPassword } = await import('../../server/config/firebase.js');
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const firebaseUser = userCredential.user;
-
-        // Dapatkan Firebase ID token
-        const firebaseToken = await firebaseUser.getIdToken();
-
-        // Kemudian kirim ke backend API Anda
         const response = await fetch(`${BASE_URL}/api/auth/login`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${firebaseToken}`
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({ email, password }),
         });
@@ -70,19 +36,13 @@ export const login = async (email, password) => {
         const data = await response.json();
 
         if (!response.ok) {
-            // Jika backend gagal, logout dari Firebase
-            await signOut(auth);
-            throw new Error(data.message || 'Login failed');
+            throw new Error(data.error || data.message || 'Login failed');
         }
 
-        // Simpan token dan data user dari backend (bukan dari Firebase)
+        // Simpan token dan data user
         if (data.data && data.data.token) {
             localStorage.setItem('userToken', data.data.token);
-            localStorage.setItem('userData', JSON.stringify({
-                uid: data.data.uid,
-                email: data.data.email,
-                token: data.data.token
-            }));
+            localStorage.setItem('userData', JSON.stringify(data.data));
         }
 
         return data.data;
@@ -139,7 +99,6 @@ export const logout = async () => {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             },
-            credentials: 'include'
         });
 
         const data = await response.json();
