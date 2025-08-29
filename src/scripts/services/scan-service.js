@@ -11,6 +11,10 @@ class ScanService {
                 throw new Error('Authentication token not available');
             }
 
+            // Timeout untuk mencegah proses terlalu lama
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 detik timeout
+
             const response = await fetch(`${BASE_URL}/api/scans`, {
                 method: 'POST',
                 headers: {
@@ -21,8 +25,11 @@ class ScanService {
                     userId,
                     ...scanData,
                     timestamp: new Date().toISOString()
-                })
+                }),
+                signal: controller.signal
             });
+
+            clearTimeout(timeoutId);
 
             const data = await response.json();
 
@@ -38,6 +45,9 @@ class ScanService {
             return data.data?.id || data.data?.scanId;
         } catch (error) {
             console.error('Error saving scan:', error);
+            if (error.name === 'AbortError') {
+                throw new Error('Save operation timed out. Please try again.');
+            }
             throw error;
         }
     }

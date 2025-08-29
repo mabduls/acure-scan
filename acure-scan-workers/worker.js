@@ -441,10 +441,10 @@ router.post('/api/scans', async (request) => {
         const scanId = generateId();
         const projectId = 'acurescan';
 
-        // **PERBAIKAN: Simpan ke subcollection scans**
-        const scanDocUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${userId}/scans/${scanId}`;
+        // **PERBAIKAN: Gunakan format URL yang benar untuk subcollection**
+        const scanDocUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/users/${userId}/scans?documentId=${scanId}`;
 
-        // Create scan document
+        // Create scan document dengan format yang sesuai
         const scanDoc = {
             fields: {
                 scanId: { stringValue: scanId },
@@ -453,6 +453,10 @@ router.post('/api/scans', async (request) => {
                 image: { stringValue: scanData.image || '' },
                 timestamp: { timestampValue: new Date().toISOString() },
                 createdAt: { timestampValue: new Date().toISOString() },
+                userEmail: { stringValue: scanData.userEmail || '' },
+                userName: { stringValue: scanData.userName || '' },
+                userId: { stringValue: userId },
+                isMockResult: { booleanValue: scanData.isMockResult || false },
                 predictions: {
                     arrayValue: {
                         values: (scanData.predictions || []).map(p => ({
@@ -469,7 +473,7 @@ router.post('/api/scans', async (request) => {
             }
         };
 
-        // Save to Firestore subcollection
+        // Save to Firestore subcollection dengan method POST yang benar
         const saveResponse = await fetch(
             scanDocUrl,
             {
@@ -478,7 +482,9 @@ router.post('/api/scans', async (request) => {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(scanDoc)
+                body: JSON.stringify({
+                    fields: scanDoc.fields
+                })
             }
         );
 
@@ -489,7 +495,7 @@ router.post('/api/scans', async (request) => {
             return new Response(JSON.stringify({
                 success: false,
                 error: 'Failed to save scan',
-                details: saveResponse.status
+                details: errorText
             }), {
                 status: 500,
                 headers: {
@@ -498,6 +504,9 @@ router.post('/api/scans', async (request) => {
                 }
             });
         }
+
+        const savedData = await saveResponse.json();
+        console.log('Scan saved successfully:', savedData);
 
         return new Response(JSON.stringify({
             success: true,

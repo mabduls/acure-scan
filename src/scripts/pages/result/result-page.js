@@ -69,16 +69,23 @@ class ResultPage extends HTMLElement {
         }
     }
 
-    showNotification(message, isSuccess = true) {
+    showNotification(message, isSuccess = true, isPersistent = false) {
+        // Hapus notifikasi sebelumnya
+        const existingNotifications = document.querySelectorAll('.custom-notification');
+        existingNotifications.forEach(notif => notif.remove());
+
         const notification = document.createElement('div');
-        notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${isSuccess ? 'bg-green-500' : 'bg-red-500'
-            } text-white`;
+        notification.className = `custom-notification fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${isSuccess ? 'bg-green-500' : 'bg-red-500'} text-white`;
         notification.textContent = message;
         document.body.appendChild(notification);
 
-        setTimeout(() => {
-            notification.remove();
-        }, 3000);
+        if (!isPersistent) {
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        return notification;
     }
 
     showError(message) {

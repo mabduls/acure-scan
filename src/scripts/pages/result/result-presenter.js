@@ -42,6 +42,43 @@ class ResultPresenter {
         }
     }
 
+    async compressImage(base64String, quality = 0.5, maxWidth = 800) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = function() {
+                try {
+                    // Calculate new dimensions
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    if (width > maxWidth) {
+                        height = (height * maxWidth) / width;
+                        width = maxWidth;
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Compress to JPEG
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+                    resolve(compressedBase64);
+                } catch (error) {
+                    reject(error);
+                }
+            };
+            
+            img.onerror = function() {
+                reject(new Error('Failed to load image'));
+            };
+            
+            img.src = base64String;
+        });
+    }
+
     async saveResult() {
         try {
             const userData = JSON.parse(localStorage.getItem('userData'));
@@ -53,17 +90,32 @@ class ResultPresenter {
                 throw new Error('No scan result to save');
             }
 
+            // Tampilkan loading indicator
+            this.view.showNotification('Saving result...', true, true);
+
+            // Kompres gambar jika terlalu besar
+            let compressedImage = this.scanResult.image;
+            if (this.scanResult.image && this.scanResult.image.length > 500000) {
+                try {
+                    compressedImage = await this.compressImage(this.scanResult.image, 0.6, 600);
+                    console.log('Image compressed:', compressedImage.length, 'bytes');
+                } catch (compressError) {
+                    console.warn('Image compression failed, using original:', compressError);
+                }
+            }
+
             // Prepare scan data for Firestore
             const scanData = {
                 ...this.scanResult,
-                createdAt: serverTimestamp(), // Gunakan server timestamp
+                image: compressedImage, // Gunakan gambar yang sudah dikompres
+                createdAt: new Date().toISOString(),
                 userId: userData.uid,
                 userEmail: userData.email || '',
                 userName: userData.name || '',
                 confidence: this.scanResult.confidence || 0,
                 dominantAcne: this.scanResult.dominantAcne || 'Unknown',
                 recommendations: this.scanResult.recommendations || [],
-                image: this.scanResult.image || ''
+                isMockResult: this.scanResult.isMockResult || false
             };
 
             // Simpan ke Firestore menggunakan ScanService
@@ -71,6 +123,8 @@ class ResultPresenter {
 
             // Update scanResult dengan ID yang baru dibuat
             this.scanResult.scanId = scanId;
+            this.scanResult.createdAt = new Date().toISOString();
+            this.scanResult.image = compressedImage; // Update dengan gambar terkompresi
 
             // Simpan juga ke localStorage untuk akses cepat
             localStorage.setItem(`scan_${scanId}`, JSON.stringify(this.scanResult));
