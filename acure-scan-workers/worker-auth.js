@@ -57,6 +57,75 @@ export async function handleRegister(request) {
     }
 }
 
+export async function handleVerify(request) {
+    try {
+        const authHeader = request.headers.get('Authorization');
+        
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return new Response(JSON.stringify({
+                success: false,
+                error: 'No token provided'
+            }), {
+                status: 401,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        }
+
+        const token = authHeader.substring(7);
+        
+        // Verifikasi token dengan Firebase REST API
+        const verifyResponse = await fetch(
+            `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${FIREBASE_API_KEY}`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ idToken: token })
+            }
+        );
+
+        const verifyData = await verifyResponse.json();
+
+        if (!verifyResponse.ok) {
+            return new Response(JSON.stringify({
+                success: false,
+                error: verifyData.error?.message || 'Token verification failed'
+            }), {
+                status: 401,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        }
+
+        return new Response(JSON.stringify({
+            success: true,
+            data: {
+                uid: verifyData.users[0].localId,
+                email: verifyData.users[0].email
+            }
+        }), {
+            status: 200,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({
+            success: false,
+            error: 'Internal server error'
+        }), {
+            status: 500,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+    }
+}
+
 export async function handleLogin(request) {
     try {
         const { email, password } = await request.json()

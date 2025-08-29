@@ -1,126 +1,214 @@
-// src/scripts/services/scan-service.js
-import { db, doc, collection, getDocs, query, where, orderBy, getDoc, setDoc, auth, serverTimestamp } from '../../server/config/firebase';
+import { BASE_URL } from '../data/api.js';
 
 class ScanService {
+    /**
+     * Simpan scan result ke database melalui API
+     */
     static async saveScan(userId, scanData) {
         try {
-            const userRef = doc(db, 'users', userId);
-            const scansCollection = collection(userRef, 'scans');
+            const token = localStorage.getItem('userToken');
+            if (!token) {
+                throw new Error('Authentication token not available');
+            }
 
-            const newScanRef = doc(scansCollection);
-
-            await setDoc(newScanRef, {
-                ...scanData,
-                createdAt: serverTimestamp(),
-                timestamp: new Date().toISOString()
+            const response = await fetch(`${BASE_URL}/api/scans`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId,
+                    ...scanData,
+                    timestamp: new Date().toISOString()
+                })
             });
 
-            return newScanRef.id;
+            const data = await response.json();
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    localStorage.removeItem('userToken');
+                    localStorage.removeItem('userData');
+                    throw new Error('Authentication expired. Please login again.');
+                }
+                throw new Error(data.error || data.message || 'Failed to save scan');
+            }
+
+            return data.data?.id || data.data?.scanId;
         } catch (error) {
             console.error('Error saving scan:', error);
             throw error;
         }
     }
 
+    /**
+     * Ambil semua scan milik user melalui API
+     */
     static async getUserScans(userId, userToken = null) {
         try {
-            let token = userToken;
+            console.log('Trying to get scans for user:', userId);
 
-            if (!token && auth.currentUser) {
-                token = await auth.currentUser.getIdToken();
-            }
+            // Langsung gunakan API, karena kita tidak bisa menggunakan Firebase SDK di frontend
+            let token = userToken || localStorage.getItem('userToken');
 
             if (!token) {
-                const storedToken = localStorage.getItem('userToken') || sessionStorage.getItem('userToken');
-                if (storedToken) {
-                    token = storedToken;
-                }
+                throw new Error('No authentication token available');
             }
 
+            const response = await fetch(`${BASE_URL}/api/scans?userId=${userId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    localStorage.removeItem('userToken');
+                    localStorage.removeItem('userData');
+                    throw new Error('Authentication expired. Please login again.');
+                }
+                throw new Error(`API failed: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('API response:', data);
+            
+            // Process the scans to ensure consistent format
+            const scans = (data.data || []).map((scan, index) => ({
+                id: scan.id || scan.scanId || `scan-${index}-${Date.now()}`,
+                scanId: scan.scanId || scan.id || `scan-${index}-${Date.now()}`,
+                dominantAcne: scan.dominantAcne || 'Unknown',
+                confidence: scan.confidence || 0,
+                image: scan.image || '',
+                timestamp: scan.timestamp || scan.createdAt || new Date().toISOString(),
+                recommendations: this.normalizeRecommendations(scan.recommendations),
+                userId: userId
+            }));
+
+            console.log('Processed scans:', scans);
+            return scans;
+
+        } catch (error) {
+            console.error('Error getting user scans:', error);
+            throw new Error('Failed to fetch scans: ' + error.message);
+        }
+    }
+
+    /**
+     * Ambil scan spesifik berdasarkan ID
+     */
+    static async getScanById(userId, scanId) {
+        try {
+            const token = localStorage.getItem('userToken') || sessionStorage.getItem('userToken');
             if (!token) {
                 throw new Error('Authentication token not available');
             }
 
-            const userRef = doc(db, 'users', userId);
-            const scansRef = collection(userRef, 'scans');
-
-            let q;
-            try {
-                q = query(scansRef, orderBy('createdAt', 'desc'));
-            } catch (orderError) {
-                // Jika orderBy createdAt gagal, coba dengan timestamp
-                console.warn('Failed to order by createdAt, trying timestamp:', orderError);
-                q = query(scansRef, orderBy('timestamp', 'desc'));
-            }
-
-            const scansSnapshot = await getDocs(q);
-
-            return scansSnapshot.docs.map(doc => {
-                const data = doc.data();
-
-                // Handle timestamp conversion from Firestore
-                let timestamp = data.timestamp;
-                if (data.createdAt && data.createdAt.toDate) {
-                    timestamp = data.createdAt.toDate().toISOString();
-                } else if (data.createdAt && typeof data.createdAt === 'string') {
-                    timestamp = data.createdAt;
-                } else if (!timestamp) {
-                    timestamp = new Date().toISOString();
+            const response = await fetch(`${BASE_URL}/api/scans/${scanId}?userId=${userId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 }
-
-                return {
-                    id: doc.id,
-                    scanId: doc.id,
-                    ...data,
-                    timestamp: timestamp,
-                    confidence: data.confidence || 0,
-                    dominantAcne: data.dominantAcne || 'Unknown',
-                    image: data.image || '',
-                    recommendations: data.recommendations || { ingredients: [], treatment: [], severity: 'Unknown' }
-                };
             });
-        } catch (error) {
-            console.error('Error getting user scans:', error);
 
-            // PERBAIKAN 4: Berikan error message yang lebih spesifik
-            if (error.code === 'permission-denied') {
-                throw new Error('Permission denied. Please login again.');
-            } else if (error.code === 'failed-precondition') {
-                throw new Error('Database index required. Please contact administrator.');
-            } else {
-                throw new Error(`Failed to load scan history: ${error.message}`);
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+
+                if (response.status === 401) {
+                    localStorage.removeItem('userToken');
+                    localStorage.removeItem('userData');
+                    sessionStorage.removeItem('userToken');
+                    throw new Error('Authentication expired. Please login again.');
+                } else if (response.status === 404) {
+                    throw new Error('Scan not found');
+                } else {
+                    throw new Error(errorData.error || 'Failed to fetch scan');
+                }
             }
+
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error(data.error || 'Failed to fetch scan');
+            }
+
+            const scan = data.data;
+            return {
+                id: scan.id || scan.scanId,
+                scanId: scan.id || scan.scanId,
+                ...scan,
+                timestamp: scan.timestamp || scan.createdAt || new Date().toISOString(),
+                recommendations: this.normalizeRecommendations(scan.recommendations)
+            };
+
+        } catch (error) {
+            console.error('Error getting scan:', error);
+            throw error;
         }
     }
 
-    static async getScanById(userId, scanId) {
-        try {
-            const userRef = doc(db, 'users', userId);
-            const scanRef = doc(collection(userRef, 'scans'), scanId);
-            const scanDoc = await getDoc(scanRef);
+    /**
+     * Normalisasi format recommendations agar konsisten
+     */
+    static normalizeRecommendations(recommendations) {
+        if (!recommendations) {
+            return { ingredients: [], treatment: [], severity: 'Unknown' };
+        }
 
-            if (!scanDoc.exists()) {
-                throw new Error('Scan not found');
-            }
+        // Jika recommendations sudah dalam format yang benar
+        if (recommendations.ingredients && recommendations.treatment) {
+            return recommendations;
+        }
 
-            const data = scanDoc.data();
-
-            // Handle timestamp conversion
-            let timestamp = data.timestamp;
-            if (data.createdAt && data.createdAt.toDate) {
-                timestamp = data.createdAt.toDate().toISOString();
-            } else if (data.createdAt && typeof data.createdAt === 'string') {
-                timestamp = data.createdAt;
-            }
-
+        // Jika recommendations adalah array
+        if (Array.isArray(recommendations)) {
             return {
-                id: scanDoc.id,
-                scanId: scanDoc.id,
-                ...data,
-                timestamp: timestamp
+                ingredients: recommendations.slice(0, 5) || [],
+                treatment: [],
+                severity: 'Unknown'
             };
+        }
+
+        // Jika recommendations adalah string atau format lain
+        return {
+            ingredients: [],
+            treatment: [],
+            severity: 'Unknown'
+        };
+    }
+
+    /**
+     * Delete scan (jika diperlukan)
+     */
+    static async deleteScan(userId, scanId) {
+        try {
+            const token = localStorage.getItem('userToken');
+            if (!token) {
+                throw new Error('Authentication token not available');
+            }
+
+            const response = await fetch(`${BASE_URL}/api/scans/${scanId}?userId=${userId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Failed to delete scan');
+            }
+
+            const data = await response.json();
+            return data.success;
+
         } catch (error) {
-            console.error('Error getting scan:', error);
+            console.error('Error deleting scan:', error);
             throw error;
         }
     }
