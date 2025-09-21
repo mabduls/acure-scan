@@ -1,4 +1,4 @@
-import { getBasePath, isGitHubPages } from '../config/base-config';
+import { getBasePath, isGitHubPages, isNetlify } from '../config/base-config';
 
 const routes = {
     '/': {
@@ -76,13 +76,6 @@ function navigateToUrl(url) {
     console.log('Navigating to:', url);
     console.log('Current base path:', getBasePath());
 
-    // PERBAIKAN KHUSUS: Handle logout redirect untuk GitHub Pages
-    if (url === '/login' && isGitHubPages()) {
-        console.log('Logout detected on GitHub Pages, doing full redirect');
-        window.location.href = '/acure-scan/#/login';
-        return;
-    }
-
     // Handle absolute URLs
     if (url.startsWith('http') || url.includes('://')) {
         window.location.href = url;
@@ -94,15 +87,13 @@ function navigateToUrl(url) {
 
     let targetUrl = url;
 
-    // Untuk GitHub Pages, handle hash routing dengan benar
+    // Untuk GitHub Pages, gunakan hash routing
     if (isGitHub) {
         if (url.startsWith('/') && !url.startsWith(basePath)) {
-            // Convert absolute path to hash route
             targetUrl = '#' + url;
         }
 
         if (targetUrl.startsWith('#')) {
-            // Hash routing untuk SPA
             window.location.hash = targetUrl;
             setTimeout(() => {
                 window.dispatchEvent(new HashChangeEvent('hashchange'));
@@ -111,7 +102,7 @@ function navigateToUrl(url) {
         }
     }
 
-    // Default navigation
+    // Untuk Netlify dan lainnya, gunakan normal routing
     if (targetUrl.startsWith('/')) {
         window.location.href = targetUrl;
     } else {
@@ -125,11 +116,11 @@ function navigateToUrl(url) {
 function getCurrentPath() {
     const hash = window.location.hash;
     const pathname = window.location.pathname;
-
+    
     console.log('Pathname:', pathname);
     console.log('Hash:', hash);
-
-    // Jika di GitHub Pages dan pathname mengandung base path
+    
+    // Jika di GitHub Pages
     if (isGitHubPages() && pathname.includes('/acure-scan/')) {
         if (hash) {
             const { path } = parseUrlWithQuery(hash);
@@ -137,10 +128,15 @@ function getCurrentPath() {
         }
         return '/';
     }
-
-    // Default behavior
-    const { path } = parseUrlWithQuery(window.location.hash);
-    return path;
+    
+    // Jika di Netlify, gunakan hash routing
+    if (isNetlify() && hash) {
+        const { path } = parseUrlWithQuery(hash);
+        return path;
+    }
+    
+    // Default: gunakan pathname untuk non-SPA, hash untuk SPA
+    return pathname === '/' && hash ? parseUrlWithQuery(hash).path : pathname;
 }
 
 function getQueryParams() {

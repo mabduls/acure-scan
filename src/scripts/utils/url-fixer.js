@@ -5,17 +5,15 @@ export class URLFixer {
             return url;
         }
 
-        // Jika di GitHub Pages, tambahkan base path
+        // Hanya apply base path fix untuk GitHub Pages
         if (window.location.hostname.includes('github.io')) {
             const repoName = 'acure-scan';
             const basePath = '/' + repoName + '/';
 
-            // Handle relative URLs
             if (url.startsWith('/') && !url.startsWith(basePath)) {
                 return basePath + url.substring(1);
             }
 
-            // Handle relative URLs without leading slash
             if (!url.startsWith('/') && !url.startsWith(basePath)) {
                 return basePath + url;
             }
@@ -124,8 +122,6 @@ export class URLFixer {
             this.interceptImageLoading();
             this.interceptScriptLoading();
             this.interceptLinkElements();
-
-            // Fix existing elements on page load
             this.fixExistingElements();
         }
     }
