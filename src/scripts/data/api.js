@@ -1,4 +1,5 @@
 import { isGitHubPages } from '../config/base-config.js';
+import { LogoutHandler } from './utils/logout-handler.js';
 
 export const BASE_URL = 'https://acure-scan-api.abdabdulziza.workers.dev'
 
@@ -91,37 +92,13 @@ export const getUserScans = async (userId, token) => {
 
 export const logout = async () => {
     try {
-        const token = localStorage.getItem('userToken');
-
-        // Bersihkan storage terlebih dahulu
-        localStorage.removeItem('userToken');
-        localStorage.removeItem('userData');
-        sessionStorage.clear();
-
-        if (!token) {
-            return { success: true };
-        }
-
-        try {
-            // PERBAIKAN: Gunakan URL yang benar untuk logout API
-            const response = await fetch(`${BASE_URL}/api/auth/logout`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-            });
-
-            return { success: true };
-        } catch (error) {
-            console.warn('Logout API call failed, but proceeding anyway:', error);
-            return { success: true };
-        }
+        // Gunakan centralized logout handler
+        await LogoutHandler.logout();
+        return { success: true };
     } catch (error) {
-        console.error('Logout error:', error);
-        localStorage.removeItem('userToken');
-        localStorage.removeItem('userData');
-        sessionStorage.clear();
+        console.error('API logout error:', error);
+        // Fallback ke hard redirect
+        window.location.href = '/acure-scan/index.html#/login';
         return { success: true };
     }
 };

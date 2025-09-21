@@ -4,30 +4,21 @@
     <meta charset="utf-8">
     <title>Acure Scan - Redirecting</title>
     <script>
-        // Comprehensive redirect handler for GitHub Pages
-        (function() {
-            const repoName = 'acure-scan';
-            const basePath = '/' + repoName + '/';
-            const currentPath = window.location.pathname;
-            
-            console.log('404 Handler - Current path:', currentPath);
-            console.log('404 Handler - Should be at:', basePath);
-            
-            // Jika tidak di path yang benar, redirect
-            if (!currentPath.startsWith(basePath)) {
-                // Simpan original path untuk SPA routing
-                const originalPath = currentPath + window.location.search + window.location.hash;
-                if (originalPath !== '/') {
-                    sessionStorage.setItem('originalPath', originalPath);
-                }
-                
-                // Redirect ke base path
-                const redirectUrl = window.location.origin + basePath;
-                console.log('Redirecting to:', redirectUrl);
-                window.location.href = redirectUrl;
-            }
-        })();
-    </script>
+    (function() {
+        const repoName = 'acure-scan';
+        const basePath = '/' + repoName + '/';
+        const currentPath = window.location.pathname;
+        
+        console.log('404 Handler - Current path:', currentPath);
+        
+        // PERBAIKAN: Redirect ke index.html yang benar
+        if (!currentPath.includes('index.html')) {
+            const targetUrl = window.location.origin + basePath + 'index.html' + window.location.hash;
+            console.log('Redirecting to:', targetUrl);
+            window.location.replace(targetUrl);
+        }
+    })();
+</script>
 </head>
 <body>
     <div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;">

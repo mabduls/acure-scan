@@ -74,7 +74,6 @@ function parseUrlWithQuery(hash) {
 
 function navigateToUrl(url) {
     console.log('Navigating to:', url);
-    console.log('Current base path:', getBasePath());
 
     // Handle absolute URLs
     if (url.startsWith('http') || url.includes('://')) {
@@ -85,40 +84,31 @@ function navigateToUrl(url) {
     const basePath = getBasePath();
     const isGitHub = isGitHubPages();
 
-    let targetUrl = url;
-
     // PERBAIKAN: Handle logout redirect khusus
-    if (url === '/login' && isGitHub) {
-        window.location.href = window.location.origin + basePath + '#/login';
+    if (url === '/login' || url === '#/login') {
+        if (isGitHub) {
+            window.location.href = `${window.location.origin}${basePath}index.html#/login`;
+        } else {
+            window.location.href = `${window.location.origin}/index.html#/login`;
+        }
         return;
     }
 
     // Untuk GitHub Pages, handle hash routing dengan benar
     if (isGitHub) {
         if (url.startsWith('/') && !url.startsWith(basePath)) {
-            // Convert absolute path to hash route
-            targetUrl = '#' + url;
+            window.location.href = `${window.location.origin}${basePath}index.html#${url}`;
+            return;
         }
 
-        if (targetUrl.startsWith('#')) {
-            // Hash routing untuk SPA
-            window.location.hash = targetUrl;
-            setTimeout(() => {
-                window.dispatchEvent(new HashChangeEvent('hashchange'));
-            }, 10);
+        if (url.startsWith('#')) {
+            window.location.hash = url;
             return;
         }
     }
 
     // Default navigation
-    if (targetUrl.startsWith('/')) {
-        window.location.href = targetUrl;
-    } else {
-        window.location.hash = '#' + targetUrl;
-        setTimeout(() => {
-            window.dispatchEvent(new HashChangeEvent('hashchange'));
-        }, 10);
-    }
+    window.location.href = url;
 }
 
 function getCurrentPath() {

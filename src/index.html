@@ -21,39 +21,28 @@
 
             const repoName = 'acure-scan';
             const basePath = '/' + repoName + '/';
+            const expectedPath = basePath + 'index.html';
 
-            // Handle redirect from 404.html
-            const originalPath = sessionStorage.getItem('originalPath');
-            if (originalPath) {
-                console.log('Handling redirect from:', originalPath);
-                sessionStorage.removeItem('originalPath');
-
-                // Convert to hash route
-                let hashRoute = originalPath;
-                if (hashRoute.startsWith(basePath)) {
-                    hashRoute = hashRoute.substring(basePath.length);
-                }
-                if (hashRoute.startsWith('/')) {
-                    hashRoute = hashRoute.substring(1);
-                }
-
-                if (hashRoute && !hashRoute.includes('.')) {
-                    console.log('Setting hash to: #/' + hashRoute);
-                    window.location.hash = '#/' + hashRoute;
-                }
-            }
-
-            // PERBAIKAN: Handle root redirect untuk GitHub Pages
+            // PERBAIKAN: Redirect jika di root domain tanpa path
             if (window.location.pathname === '/' && window.location.hostname.includes('github.io')) {
                 console.log('Redirecting from root to base path');
-                window.location.href = window.location.origin + basePath;
+                window.location.href = window.location.origin + expectedPath;
                 return;
             }
 
-            // Ensure we're at the correct base path
-            if (window.location.pathname !== basePath && window.location.pathname !== '/') {
-                console.log('Correcting path from:', window.location.pathname, 'to:', basePath);
-                window.history.replaceState({}, '', basePath + window.location.hash);
+            // PERBAIKAN: Redirect jika path tidak benar
+            if (window.location.pathname !== basePath &&
+                window.location.pathname !== expectedPath &&
+                !window.location.pathname.includes('index.html')) {
+                console.log('Correcting path:', window.location.pathname, '→', expectedPath);
+                window.location.href = window.location.origin + expectedPath + window.location.hash;
+                return;
+            }
+
+            // Handle hash routing untuk SPA
+            if (window.location.hash) {
+                console.log('Hash detected:', window.location.hash);
+                // Biarkan router yang menangani hash
             }
         })();
     </script>

@@ -72,32 +72,32 @@ class DashboardPresenter {
                 localStorage.removeItem('userData');
                 sessionStorage.clear();
 
-                this.view.showNotification('Logout successful');
-
-                // PERBAIKAN: Redirect yang benar untuk GitHub Pages
+                // PERBAIKAN UTAMA: Redirect logic yang konsisten
                 const isGitHub = window.location.hostname.includes('github.io');
                 let redirectUrl;
 
                 if (isGitHub) {
-                    // Untuk GitHub Pages, redirect ke base path yang benar
-                    redirectUrl = window.location.origin + '/acure-scan/#/login';
+                    // PASTIKAN menggunakan path yang benar
+                    redirectUrl = `${window.location.origin}/acure-scan/index.html#/login`;
                 } else {
-                    // Untuk local development
-                    redirectUrl = window.location.origin + '/#/login';
+                    redirectUrl = `${window.location.origin}/index.html#/login`;
                 }
 
-                console.log('Redirecting to:', redirectUrl);
+                console.log('Logout redirecting to:', redirectUrl);
+                this.view.showNotification('Logout successful');
 
-                // Gunakan replace untuk menghindari history entry
+                // Gunakan replace dan force reload
                 setTimeout(() => {
                     window.location.replace(redirectUrl);
-                }, 1000);
+                    // Force reload untuk memastikan clean state
+                    setTimeout(() => window.location.reload(true), 100);
+                }, 800);
 
             } catch (error) {
                 console.error('Logout error:', error);
-                // Fallback redirect
-                const redirectUrl = window.location.origin + '/acure-scan/#/login';
-                window.location.replace(redirectUrl);
+                // Fallback hard redirect
+                const fallbackUrl = `${window.location.origin}/acure-scan/index.html#/login`;
+                window.location.replace(fallbackUrl);
             }
         });
     }
