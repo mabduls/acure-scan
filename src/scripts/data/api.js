@@ -94,7 +94,7 @@ export const logout = async () => {
     try {
         const token = localStorage.getItem('userToken');
 
-        // Bersihkan storage terlebih dahulu - INI YANG PALING PENTING
+        // Bersihkan storage terlebih dahulu
         localStorage.removeItem('userToken');
         localStorage.removeItem('userData');
         sessionStorage.clear();
@@ -103,14 +103,6 @@ export const logout = async () => {
         Object.keys(localStorage)
             .filter(key => key.startsWith('scan_'))
             .forEach(key => localStorage.removeItem(key));
-
-        // Untuk GitHub Pages, langsung return dan biarkan client redirect
-        if (window.location.hostname.includes('github.io')) {
-            return {
-                success: true,
-                redirectUrl: 'https://mabduls.github.io/acure-scan/'
-            };
-        }
 
         if (!token) {
             return { success: true };
@@ -125,8 +117,10 @@ export const logout = async () => {
                 },
             });
 
+            // Tidak perlu menunggu response, langsung return
             return { success: true };
         } catch (error) {
+            // Even if API call fails, consider logout successful
             console.warn('Logout API call failed, but proceeding anyway:', error);
             return { success: true };
         }

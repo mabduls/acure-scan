@@ -74,16 +74,13 @@ function parseUrlWithQuery(hash) {
 
 function navigateToUrl(url) {
     console.log('Navigating to:', url);
+    console.log('Current base path:', getBasePath());
 
-    // Handle logout case specifically
-    if (url === '/logout' || url === '/login' || url === '/') {
-        const isGitHub = window.location.hostname.includes('github.io');
-
-        if (isGitHub) {
-            // Untuk logout, redirect langsung ke base URL
-            window.location.href = 'https://mabduls.github.io/acure-scan/';
-            return;
-        }
+    // PERBAIKAN KHUSUS: Handle logout redirect untuk GitHub Pages
+    if (url === '/login' && isGitHubPages()) {
+        console.log('Logout detected on GitHub Pages, doing full redirect');
+        window.location.href = '/acure-scan/#/login';
+        return;
     }
 
     // Handle absolute URLs

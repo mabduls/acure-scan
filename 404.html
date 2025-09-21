@@ -4,21 +4,22 @@
     <meta charset="utf-8">
     <title>Acure Scan - Redirecting</title>
     <script>
-    (function() {
-        const repoName = 'acure-scan';
-        const basePath = '/' + repoName + '/';
-        const currentPath = window.location.pathname;
-        
-        console.log('404 Handler - Current path:', currentPath);
-        
-        // PERBAIKAN: Redirect ke index.html yang benar
-        if (!currentPath.includes('index.html')) {
-            const targetUrl = window.location.origin + basePath + 'index.html' + window.location.hash;
-            console.log('Redirecting to:', targetUrl);
-            window.location.replace(targetUrl);
-        }
-    })();
-</script>
+        (function() {
+            const repoName = 'acure-scan';
+            const basePath = '/' + repoName + '/';
+            const currentPath = window.location.pathname;
+            
+            console.log('404 Handler - Current path:', currentPath);
+            
+            // Jika tidak di path yang benar, redirect
+            if (!currentPath.startsWith(basePath)) {
+                // Redirect ke base path
+                const redirectUrl = window.location.origin + basePath;
+                console.log('Redirecting to:', redirectUrl);
+                window.location.href = redirectUrl;
+            }
+        })();
+    </script>
 </head>
 <body>
     <div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;">

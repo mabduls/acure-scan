@@ -80,16 +80,16 @@ class DashboardPresenter {
 
                 this.view.showNotification('Logout successful');
 
-                // PERBAIKAN PASTI: Redirect langsung TANPA hash sama sekali
+                // PERBAIKAN KHUSUS: Redirect yang benar untuk GitHub Pages
                 setTimeout(() => {
                     const isGitHub = window.location.hostname.includes('github.io');
 
                     if (isGitHub) {
-                        // Untuk GitHub Pages, redirect langsung ke base URL TANPA hash
-                        // Gunakan location.replace untuk menghindari history
-                        window.location.replace('https://mabduls.github.io/acure-scan/');
+                        // Untuk GitHub Pages, redirect langsung ke base URL tanpa hash
+                        // Ini akan memuat ulang halaman ke root aplikasi
+                        window.location.href = '/acure-scan/';
                     } else {
-                        // Untuk local development - tetap gunakan hash
+                        // Untuk local development, gunakan hash routing
                         window.location.hash = '#/login';
                         window.dispatchEvent(new HashChangeEvent('hashchange'));
                     }
@@ -102,8 +102,13 @@ class DashboardPresenter {
                 localStorage.clear();
                 sessionStorage.clear();
 
-                // Fallback redirect langsung ke URL yang benar TANPA hash
-                window.location.replace('https://mabduls.github.io/acure-scan/');
+                // Fallback redirect khusus GitHub Pages
+                const isGitHub = window.location.hostname.includes('github.io');
+                if (isGitHub) {
+                    window.location.href = '/acure-scan/';
+                } else {
+                    window.location.hash = '#/login';
+                }
             }
         });
     }
