@@ -74,9 +74,22 @@ function parseUrlWithQuery(hash) {
 function navigateToUrl(url) {
     console.log('Navigating to:', url);
     
+    // Handle absolute URLs for GitHub Pages
+    if (url.startsWith('http')) {
+        window.location.href = url;
+        return;
+    }
+    
+    // Handle hash-based routing for GitHub Pages
     const cleanUrl = url.startsWith('#') ? url : `#${url}`;
     
-    window.location.hash = cleanUrl;
+    // Untuk GitHub Pages, kita perlu memastikan path base benar
+    const basePath = window.location.pathname;
+    if (basePath.includes('/acure-scan/') && !cleanUrl.startsWith('#/acure-scan/')) {
+        window.location.hash = cleanUrl;
+    } else {
+        window.location.hash = cleanUrl;
+    }
     
     setTimeout(() => {
         window.dispatchEvent(new HashChangeEvent('hashchange'));

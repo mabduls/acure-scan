@@ -1,5 +1,15 @@
 import '../styles/styles.css';
 import App from './pages/app';
+import { ErrorHandler } from './utils/error-handler.js';
+
+window.addEventListener('error', (event) => {
+    if (event.error && event.error.message && event.error.message.includes(':has-text')) {
+        event.preventDefault();
+        console.warn('Browser extension causing CSS parsing error, ignoring...');
+        return true;
+    }
+    return false;
+});
 
 if (module.hot) {
     module.hot.accept('./pages/app', () => {
@@ -71,6 +81,7 @@ async function initializeApp() {
             </div>
     `;
     }
+    ErrorHandler.init();
 }
 
 initializeApp();

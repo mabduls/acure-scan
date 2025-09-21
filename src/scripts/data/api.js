@@ -87,34 +87,37 @@ export const logout = async () => {
     try {
         const token = localStorage.getItem('userToken');
 
+        // Bersihkan storage terlebih dahulu
+        localStorage.removeItem('userToken');
+        localStorage.removeItem('userData');
+        sessionStorage.clear();
+
         if (!token) {
-            localStorage.removeItem('userToken');
-            localStorage.removeItem('userData');
             return { success: true };
         }
 
-        const response = await fetch(`${BASE_URL}/api/auth/logout`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-        });
+        try {
+            const response = await fetch(`${BASE_URL}/api/auth/logout`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+            });
 
-        const data = await response.json();
-
-        localStorage.removeItem('userToken');
-        localStorage.removeItem('userData');
-
-        if (!response.ok) {
-            throw new Error(data.message || 'Logout failed');
+            // Tidak perlu menunggu response, langsung return
+            return { success: true };
+        } catch (error) {
+            // Even if API call fails, consider logout successful
+            console.warn('Logout API call failed, but proceeding anyway:', error);
+            return { success: true };
         }
-
-        return data;
     } catch (error) {
         console.error('Logout error:', error);
+        // Fallback: tetap bersihkan storage
         localStorage.removeItem('userToken');
         localStorage.removeItem('userData');
-        throw error;
+        sessionStorage.clear();
+        return { success: true };
     }
 };

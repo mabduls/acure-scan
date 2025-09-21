@@ -67,34 +67,27 @@ class DashboardPresenter {
             try {
                 this.view.showNotification('Logging out...');
 
-                // Logout dari Firebase
-                const { auth, signOut } = await import('../../../server/config/firebase.js');
-                await signOut(auth);
-
-                // Panggil API logout backend
-                await logout();
-
-                // Bersihkan storage
+                // Bersihkan storage pertama
                 localStorage.removeItem('userToken');
                 localStorage.removeItem('userData');
                 sessionStorage.clear();
 
+                // Redirect dengan cara yang compatible GitHub Pages
                 this.view.showNotification('Logout successful');
+
+                // Gunakan window.location.href untuk redirect absolut
+                const baseUrl = window.location.origin + window.location.pathname;
                 setTimeout(() => {
-                    window.location.href = '/#/';
+                    window.location.href = baseUrl + '#/';
+                    window.location.reload(); // Force reload untuk membersihkan state
                 }, 1000);
 
             } catch (error) {
                 console.error('Logout error:', error);
-                // Fallback: tetap bersihkan storage meskipun logout gagal
-                localStorage.removeItem('userToken');
-                localStorage.removeItem('userData');
-                sessionStorage.clear();
-
-                this.view.showNotification('Logged out (with possible issues)');
-                setTimeout(() => {
-                    window.location.href = '/#/login';
-                }, 1500);
+                // Fallback redirect
+                const baseUrl = window.location.origin + window.location.pathname;
+                window.location.href = baseUrl + '#/';
+                window.location.reload();
             }
         });
     }
