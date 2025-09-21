@@ -1,23 +1,40 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
-    <title>Acure Scan</title>
+    <title>Acure Scan - Redirecting</title>
     <script>
-        // Redirect semua 404 ke index.html untuk SPA routing
-        const path = window.location.pathname;
+        // Redirect semua request ke index.html dengan path yang benar
+        const currentPath = window.location.pathname;
         const search = window.location.search;
         const hash = window.location.hash;
-        
-        // Jika ini adalah path dari SPA kita, redirect ke index.html
-        if (path.includes('/acure-scan/') || !path.includes('.')) {
-            // Simpan path asli untuk ditangani oleh router SPA
-            sessionStorage.redirect = path + search + hash;
-            window.location.href = '/acure-scan/';
+
+        // Base path untuk GitHub Pages
+        const repoName = 'acure-scan';
+        const basePath = `/${repoName}/`;
+
+        console.log('404 Handler - Current path:', currentPath);
+        console.log('404 Handler - Redirecting to base path:', basePath);
+
+        // Jika tidak berada di path yang benar, redirect
+        if (!currentPath.includes(basePath)) {
+            const redirectPath = basePath + (hash || '#/');
+            sessionStorage.setItem('originalPath', currentPath + search + hash);
+            window.location.href = redirectPath;
+        } else {
+            // Jika sudah di path benar tapi masih 404, redirect ke index
+            sessionStorage.setItem('spaRedirect', currentPath + search + hash);
+            window.location.href = basePath + 'index.html';
         }
     </script>
 </head>
+
 <body>
-    Redirecting to Acure Scan...
+    <div style="padding: 20px; text-align: center;">
+        <h2>Redirecting to Acure Scan...</h2>
+        <p>If you are not redirected automatically, <a href="/acure-scan/">click here</a>.</p>
+    </div>
 </body>
+
 </html>

@@ -14,32 +14,47 @@
     <main id="mainContent" class="min-h-screen"></main>
     <!-- File JS akan di-inject oleh webpack -->
     <script>
-        // Handle redirect dari 404.html
+        // SPA Redirect Handler untuk GitHub Pages
         (function () {
-            const redirect = sessionStorage.redirect;
-            delete sessionStorage.redirect;
+            const repoName = 'acure-scan';
+            const basePath = `/${repoName}/`;
 
-            if (redirect && redirect !== window.location.href) {
-                const fullRedirect = redirect.startsWith('/') ?
-                    window.location.origin + redirect : redirect;
+            console.log('SPA Redirect Handler initialized');
+            console.log('Current location:', window.location.href);
 
-                // Jika redirect adalah path SPA kita, gunakan hash routing
-                if (redirect.includes('/acure-scan/') || !redirect.includes('.')) {
-                    const hashPath = redirect.replace('/acure-scan/', '/').replace(/^\//, '');
-                    window.location.hash = hashPath ? `#/${hashPath}` : '#/';
-                } else {
-                    window.location.href = fullRedirect;
+            // Handle redirect dari sessionStorage
+            const originalPath = sessionStorage.getItem('originalPath');
+            const spaRedirect = sessionStorage.getItem('spaRedirect');
+
+            if (originalPath) {
+                console.log('Original path from 404:', originalPath);
+                sessionStorage.removeItem('originalPath');
+
+                // Convert to hash route untuk SPA
+                const hashRoute = originalPath.replace(basePath, '/').replace(/^\//, '');
+                if (hashRoute && !hashRoute.includes('.')) {
+                    window.location.hash = '#/' + hashRoute;
+                    console.log('Redirecting to hash:', '#/' + hashRoute);
                 }
             }
+
+            if (spaRedirect) {
+                console.log('SPA redirect path:', spaRedirect);
+                sessionStorage.removeItem('spaRedirect');
+
+                const hashRoute = spaRedirect.replace(basePath, '/').replace(/^\//, '');
+                if (hashRoute && !hashRoute.includes('.')) {
+                    window.location.hash = '#/' + hashRoute;
+                    console.log('SPA redirect to hash:', '#/' + hashRoute);
+                }
+            }
+
+            // Handle case dimana user langsung mengakses root
+            if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+                console.log('Root access detected, redirecting to base path');
+                window.location.href = basePath + (window.location.hash || '#/');
+            }
         })();
-
-        console.log('Current path:', window.location.pathname);
-        console.log('Current hash:', window.location.hash);
-        console.log('Session storage redirect:', sessionStorage.redirect);
-
-        if (sessionStorage.redirect) {
-            console.log('Redirecting from 404:', sessionStorage.redirect);
-        }
     </script>
 </body>
 
