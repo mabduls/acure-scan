@@ -1,40 +1,38 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="utf-8">
     <title>Acure Scan - Redirecting</title>
     <script>
-        // Redirect semua request ke index.html dengan path yang benar
-        const currentPath = window.location.pathname;
-        const search = window.location.search;
-        const hash = window.location.hash;
-
-        // Base path untuk GitHub Pages
-        const repoName = 'acure-scan';
-        const basePath = `/${repoName}/`;
-
-        console.log('404 Handler - Current path:', currentPath);
-        console.log('404 Handler - Redirecting to base path:', basePath);
-
-        // Jika tidak berada di path yang benar, redirect
-        if (!currentPath.includes(basePath)) {
-            const redirectPath = basePath + (hash || '#/');
-            sessionStorage.setItem('originalPath', currentPath + search + hash);
-            window.location.href = redirectPath;
-        } else {
-            // Jika sudah di path benar tapi masih 404, redirect ke index
-            sessionStorage.setItem('spaRedirect', currentPath + search + hash);
-            window.location.href = basePath + 'index.html';
-        }
+        // Comprehensive redirect handler for GitHub Pages
+        (function() {
+            const repoName = 'acure-scan';
+            const basePath = '/' + repoName + '/';
+            const currentPath = window.location.pathname;
+            
+            console.log('404 Handler - Current path:', currentPath);
+            console.log('404 Handler - Should be at:', basePath);
+            
+            // Jika tidak di path yang benar, redirect
+            if (!currentPath.startsWith(basePath)) {
+                // Simpan original path untuk SPA routing
+                const originalPath = currentPath + window.location.search + window.location.hash;
+                if (originalPath !== '/') {
+                    sessionStorage.setItem('originalPath', originalPath);
+                }
+                
+                // Redirect ke base path
+                const redirectUrl = window.location.origin + basePath;
+                console.log('Redirecting to:', redirectUrl);
+                window.location.href = redirectUrl;
+            }
+        })();
     </script>
 </head>
-
 <body>
-    <div style="padding: 20px; text-align: center;">
+    <div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;">
         <h2>Redirecting to Acure Scan...</h2>
-        <p>If you are not redirected automatically, <a href="/acure-scan/">click here</a>.</p>
+        <p>If you are not redirected automatically, <a id="redirectLink" href="/acure-scan/">click here</a>.</p>
     </div>
 </body>
-
 </html>
