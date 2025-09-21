@@ -1,4 +1,10 @@
+import { isGitHubPages } from '../config/base-config.js';
+
 export const BASE_URL = 'https://acure-scan-api.abdabdulziza.workers.dev'
+
+export const getApiUrl = (endpoint) => {
+    return `${BASE_URL}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
+};
 
 export const register = async (name, email, password) => {
     try {

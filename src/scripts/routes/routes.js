@@ -1,4 +1,5 @@
-// routes.js - DIPERBAIKI
+import { getBasePath, isGitHubPages } from './config/base-config.js';
+
 const routes = {
     '/': {
         template: '<landing-page></landing-page>',
@@ -73,43 +74,64 @@ function parseUrlWithQuery(hash) {
 
 function navigateToUrl(url) {
     console.log('Navigating to:', url);
-
+    console.log('Current base path:', getBasePath());
+    
     // Handle absolute URLs
-    if (url.startsWith('http')) {
+    if (url.startsWith('http') || url.includes('://')) {
         window.location.href = url;
         return;
     }
-
-    // Handle external URLs
-    if (url.includes('://')) {
-        window.location.href = url;
-        return;
-    }
-
-    // Untuk GitHub Pages, pastikan kita tetap dalam /acure-scan/
-    const currentPath = window.location.pathname;
-    const isGitHubPages = currentPath.includes('/acure-scan/');
-
+    
+    const basePath = getBasePath();
+    const isGitHub = isGitHubPages();
+    
     let targetUrl = url;
-
-    if (isGitHubPages && !url.startsWith('/acure-scan/') && !url.startsWith('#')) {
-        // Jika di GitHub Pages dan URL tidak mengandung path, gunakan hash routing
-        targetUrl = '#' + (url.startsWith('/') ? url : '/' + url);
+    
+    // Untuk GitHub Pages, handle hash routing dengan benar
+    if (isGitHub) {
+        if (url.startsWith('/') && !url.startsWith(basePath)) {
+            // Convert absolute path to hash route
+            targetUrl = '#' + url;
+        }
+        
+        if (targetUrl.startsWith('#')) {
+            // Hash routing untuk SPA
+            window.location.hash = targetUrl;
+            setTimeout(() => {
+                window.dispatchEvent(new HashChangeEvent('hashchange'));
+            }, 10);
+            return;
+        }
     }
-
-    if (targetUrl.startsWith('#')) {
-        // Hash routing
-        window.location.hash = targetUrl;
+    
+    // Default navigation
+    if (targetUrl.startsWith('/')) {
+        window.location.href = targetUrl;
+    } else {
+        window.location.hash = '#' + targetUrl;
         setTimeout(() => {
             window.dispatchEvent(new HashChangeEvent('hashchange'));
         }, 10);
-    } else {
-        // Full page navigation
-        window.location.href = targetUrl;
     }
 }
 
 function getCurrentPath() {
+    const hash = window.location.hash;
+    const pathname = window.location.pathname;
+    
+    console.log('Pathname:', pathname);
+    console.log('Hash:', hash);
+    
+    // Jika di GitHub Pages dan pathname mengandung base path
+    if (isGitHubPages() && pathname.includes('/acure-scan/')) {
+        if (hash) {
+            const { path } = parseUrlWithQuery(hash);
+            return path;
+        }
+        return '/';
+    }
+    
+    // Default behavior
     const { path } = parseUrlWithQuery(window.location.hash);
     return path;
 }

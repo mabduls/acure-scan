@@ -15,7 +15,7 @@ if (module.hot) {
     module.hot.accept('./pages/app', () => {
         console.log('Accepting the updated App module!');
     });
-    
+
     module.hot.accept('./pages/landing/landing-page', () => {
         console.log('Accepting the updated LandingPage module!');
         const LandingPage = require('./pages/landing/landing-page').default;
@@ -42,6 +42,15 @@ async function safeDefine(name, importPromise) {
 
 async function initializeApp() {
     try {
+        console.log('=== GITHUB PAGES CONFIG ===');
+        console.log('Hostname:', window.location.hostname);
+        console.log('Pathname:', window.location.pathname);
+        console.log('Hash:', window.location.hash);
+        console.log('Is GitHub Pages:', window.location.hostname.includes('github.io'));
+        console.log('==========================');
+
+        ErrorHandler.init();
+
         await Promise.all([
             safeDefine('landing-page', import('./pages/landing/landing-page')),
             safeDefine('login-page', import('./pages/auth/login/login-page')),
@@ -81,7 +90,6 @@ async function initializeApp() {
             </div>
     `;
     }
-    ErrorHandler.init();
 }
 
 initializeApp();

@@ -75,18 +75,29 @@ class DashboardPresenter {
                 this.view.showNotification('Logout successful');
 
                 // REDIRECT YANG BENAR UNTUK GITHUB PAGES
-                const baseUrl = window.location.origin + '/acure-scan/';
+                const isGitHub = window.location.hostname.includes('github.io');
+                let redirectUrl;
 
+                if (isGitHub) {
+                    // Untuk GitHub Pages, gunakan absolute URL dengan base path
+                    redirectUrl = window.location.origin + '/acure-scan/#/login';
+                } else {
+                    // Untuk local development
+                    redirectUrl = window.location.origin + '/#/login';
+                }
+
+                console.log('Redirecting to:', redirectUrl);
+
+                // Gunakan replace untuk menghindari history entry
                 setTimeout(() => {
-                    // Gunakan window.location.replace untuk menghindari history entry
-                    window.location.replace(baseUrl + '#/login');
+                    window.location.replace(redirectUrl);
                 }, 1000);
 
             } catch (error) {
                 console.error('Logout error:', error);
                 // Fallback redirect
-                const baseUrl = window.location.origin + '/acure-scan/';
-                window.location.replace(baseUrl + '#/login');
+                const redirectUrl = window.location.origin + '/acure-scan/#/login';
+                window.location.replace(redirectUrl);
             }
         });
     }
