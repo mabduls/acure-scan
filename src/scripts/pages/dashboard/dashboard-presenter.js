@@ -74,12 +74,12 @@ class DashboardPresenter {
 
                 this.view.showNotification('Logout successful');
 
-                // REDIRECT YANG BENAR UNTUK GITHUB PAGES
+                // PERBAIKAN: Redirect yang benar untuk GitHub Pages
                 const isGitHub = window.location.hostname.includes('github.io');
                 let redirectUrl;
 
                 if (isGitHub) {
-                    // Untuk GitHub Pages, gunakan absolute URL dengan base path
+                    // Untuk GitHub Pages, redirect ke base path yang benar
                     redirectUrl = window.location.origin + '/acure-scan/#/login';
                 } else {
                     // Untuk local development

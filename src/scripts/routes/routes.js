@@ -1,4 +1,4 @@
-import { getBasePath, isGitHubPages } from './config/base-config.js';
+import { getBasePath, isGitHubPages } from '../config/base-config';
 
 const routes = {
     '/': {
@@ -75,25 +75,31 @@ function parseUrlWithQuery(hash) {
 function navigateToUrl(url) {
     console.log('Navigating to:', url);
     console.log('Current base path:', getBasePath());
-    
+
     // Handle absolute URLs
     if (url.startsWith('http') || url.includes('://')) {
         window.location.href = url;
         return;
     }
-    
+
     const basePath = getBasePath();
     const isGitHub = isGitHubPages();
-    
+
     let targetUrl = url;
-    
+
+    // PERBAIKAN: Handle logout redirect khusus
+    if (url === '/login' && isGitHub) {
+        window.location.href = window.location.origin + basePath + '#/login';
+        return;
+    }
+
     // Untuk GitHub Pages, handle hash routing dengan benar
     if (isGitHub) {
         if (url.startsWith('/') && !url.startsWith(basePath)) {
             // Convert absolute path to hash route
             targetUrl = '#' + url;
         }
-        
+
         if (targetUrl.startsWith('#')) {
             // Hash routing untuk SPA
             window.location.hash = targetUrl;
@@ -103,7 +109,7 @@ function navigateToUrl(url) {
             return;
         }
     }
-    
+
     // Default navigation
     if (targetUrl.startsWith('/')) {
         window.location.href = targetUrl;
@@ -118,10 +124,10 @@ function navigateToUrl(url) {
 function getCurrentPath() {
     const hash = window.location.hash;
     const pathname = window.location.pathname;
-    
+
     console.log('Pathname:', pathname);
     console.log('Hash:', hash);
-    
+
     // Jika di GitHub Pages dan pathname mengandung base path
     if (isGitHubPages() && pathname.includes('/acure-scan/')) {
         if (hash) {
@@ -130,7 +136,7 @@ function getCurrentPath() {
         }
         return '/';
     }
-    
+
     // Default behavior
     const { path } = parseUrlWithQuery(window.location.hash);
     return path;

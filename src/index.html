@@ -43,8 +43,15 @@
                 }
             }
 
+            // PERBAIKAN: Handle root redirect untuk GitHub Pages
+            if (window.location.pathname === '/' && window.location.hostname.includes('github.io')) {
+                console.log('Redirecting from root to base path');
+                window.location.href = window.location.origin + basePath;
+                return;
+            }
+
             // Ensure we're at the correct base path
-            if (window.location.pathname !== basePath) {
+            if (window.location.pathname !== basePath && window.location.pathname !== '/') {
                 console.log('Correcting path from:', window.location.pathname, 'to:', basePath);
                 window.history.replaceState({}, '', basePath + window.location.hash);
             }

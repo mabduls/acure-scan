@@ -103,6 +103,7 @@ export const logout = async () => {
         }
 
         try {
+            // PERBAIKAN: Gunakan URL yang benar untuk logout API
             const response = await fetch(`${BASE_URL}/api/auth/logout`, {
                 method: 'POST',
                 headers: {
@@ -111,16 +112,13 @@ export const logout = async () => {
                 },
             });
 
-            // Tidak perlu menunggu response, langsung return
             return { success: true };
         } catch (error) {
-            // Even if API call fails, consider logout successful
             console.warn('Logout API call failed, but proceeding anyway:', error);
             return { success: true };
         }
     } catch (error) {
         console.error('Logout error:', error);
-        // Fallback: tetap bersihkan storage
         localStorage.removeItem('userToken');
         localStorage.removeItem('userData');
         sessionStorage.clear();
