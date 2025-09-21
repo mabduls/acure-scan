@@ -60,6 +60,7 @@ class DashboardPresenter {
 
         logoutButton.addEventListener('click', async (e) => {
             e.preventDefault();
+            e.stopPropagation(); // Prevent event bubbling
 
             const confirmLogout = confirm('Are you sure you want to logout?');
             if (!confirmLogout) return;
@@ -67,37 +68,49 @@ class DashboardPresenter {
             try {
                 this.view.showNotification('Logging out...');
 
-                // Bersihkan storage
+                // Clear all storage first
                 localStorage.removeItem('userToken');
                 localStorage.removeItem('userData');
                 sessionStorage.clear();
 
-                // PERBAIKAN UTAMA: Redirect logic yang konsisten
-                const isGitHub = window.location.hostname.includes('github.io');
-                let redirectUrl;
+                // Clear any scan data
+                Object.keys(localStorage)
+                    .filter(key => key.startsWith('scan_'))
+                    .forEach(key => localStorage.removeItem(key));
 
-                if (isGitHub) {
-                    // PASTIKAN menggunakan path yang benar
-                    redirectUrl = `${window.location.origin}/acure-scan/index.html#/login`;
-                } else {
-                    redirectUrl = `${window.location.origin}/index.html#/login`;
-                }
-
-                console.log('Logout redirecting to:', redirectUrl);
                 this.view.showNotification('Logout successful');
 
-                // Gunakan replace dan force reload
+                // PERBAIKAN: Redirect yang benar untuk GitHub Pages
+                // Gunakan setTimeout untuk memastikan notification terlihat
                 setTimeout(() => {
-                    window.location.replace(redirectUrl);
-                    // Force reload untuk memastikan clean state
-                    setTimeout(() => window.location.reload(true), 100);
-                }, 800);
+                    // Cek apakah di GitHub Pages atau local
+                    const isGitHub = window.location.hostname.includes('github.io');
+                    
+                    if (isGitHub) {
+                        // Untuk GitHub Pages, tetap di base path dengan hash routing
+                        window.location.href = '/acure-scan/#/login';
+                    } else {
+                        // Untuk local development
+                        window.location.hash = '#/login';
+                        // Trigger hashchange event manually
+                        window.dispatchEvent(new HashChangeEvent('hashchange'));
+                    }
+                }, 500);
 
             } catch (error) {
                 console.error('Logout error:', error);
-                // Fallback hard redirect
-                const fallbackUrl = `${window.location.origin}/acure-scan/index.html#/login`;
-                window.location.replace(fallbackUrl);
+                
+                // Fallback: Clear storage dan redirect anyway
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                // Fallback redirect
+                const isGitHub = window.location.hostname.includes('github.io');
+                if (isGitHub) {
+                    window.location.href = '/acure-scan/#/login';
+                } else {
+                    window.location.hash = '#/login';
+                }
             }
         });
     }
@@ -109,7 +122,7 @@ class DashboardPresenter {
         const imageElement = this.view.querySelector('#uploadedImage');
 
         uploadTrigger.addEventListener('click', () => {
-            imageInput.value = ''; // Reset input file
+            imageInput.value = ''; 
             imageInput.click();
         });
 
@@ -117,20 +130,15 @@ class DashboardPresenter {
             const file = e.target.files?.[0];
             if (!file) return;
 
-            // Validasi file
             if (!file.type.match('image.*')) {
                 this.view.showNotification('Please select an image file (JPEG/PNG)', false);
                 return;
             }
 
-            // Tampilkan loading
             this.view.showNotification('Loading image...');
 
             try {
-                // Gunakan Promise untuk menangani FileReader
                 const imageData = await this.readFileAsDataURL(file);
-
-                // Simpan data gambar dan tampilkan modal
                 this.imageData = imageData;
                 await this.showImageModal();
 
@@ -141,7 +149,6 @@ class DashboardPresenter {
         });
     }
 
-    // Tambahkan method baru untuk membaca file
     readFileAsDataURL(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -161,19 +168,16 @@ class DashboardPresenter {
         const imageElement = this.view.querySelector('#uploadedImage');
         const cropOverlay = this.view.querySelector('#cropOverlay');
 
-        // Handle modal close
         cancelButton.addEventListener('click', (e) => {
             e.preventDefault();
             this.closeImageModal();
         });
 
-        // Handle scan
-        scanButton.addEventListener('click', (event) => { // Tambahkan 'event'
-            event.preventDefault(); // BARIS INI SANGAT PENTING
+        scanButton.addEventListener('click', (event) => {
+            event.preventDefault();
             this.handleScan();
         });
 
-        // Setup crop functionality
         const imageContainer = modal.querySelector('div.relative');
 
         imageContainer.addEventListener('mousedown', (e) => {
@@ -232,19 +236,15 @@ class DashboardPresenter {
             return;
         }
 
-        // Tampilkan modal terlebih dahulu
         modal.classList.remove('hidden');
-        modal.style.display = 'flex'; // Pastikan modal ditampilkan
+        modal.style.display = 'flex';
 
-        // Reset state gambar
         imageElement.style.display = 'block';
-        imageElement.src = ''; // Reset src sebelum menetapkan yang baru
+        imageElement.src = '';
 
-        // Gunakan Promise untuk memastikan gambar dimuat
         try {
             await this.loadImageToElement(imageElement, this.imageData);
 
-            // Reset crop overlay
             if (cropOverlay) {
                 cropOverlay.style.display = 'none';
                 cropOverlay.style.width = '0';
@@ -258,16 +258,14 @@ class DashboardPresenter {
         }
     }
 
-    // Tambahkan method untuk memuat gambar ke elemen
     loadImageToElement(imgElement, src) {
         return new Promise((resolve, reject) => {
             imgElement.onload = () => resolve();
             imgElement.onerror = () => reject(new Error('Image element failed to load'));
 
-            // Gunakan timeout untuk deteksi error
             const timeout = setTimeout(() => {
                 reject(new Error('Image loading timed out'));
-            }, 5000); // 5 detik timeout
+            }, 5000);
 
             imgElement.onload = () => {
                 clearTimeout(timeout);
@@ -282,13 +280,11 @@ class DashboardPresenter {
         const cropOverlay = this.view.querySelector('#cropOverlay');
         const imageElement = this.view.querySelector('#uploadedImage');
 
-        // Validasi elemen gambar
         if (!imageElement || !imageElement.src) {
             console.error('No image available for cropping');
             return null;
         }
 
-        // Jika tidak ada crop yang dilakukan, kembalikan gambar asli
         if (parseInt(cropOverlay.style.width) <= 0 || parseInt(cropOverlay.style.height) <= 0) {
             console.log('No crop applied, using original image');
             return imageElement.src;
@@ -307,7 +303,6 @@ class DashboardPresenter {
             const width = parseInt(cropOverlay.style.width);
             const height = parseInt(cropOverlay.style.height);
 
-            // Validasi dimensi crop
             if (width <= 0 || height <= 0 || x < 0 || y < 0) {
                 console.error('Invalid crop dimensions:', { x, y, width, height });
                 return imageElement.src;
@@ -322,11 +317,10 @@ class DashboardPresenter {
                 0, 0, width, height
             );
 
-            // Konversi ke format JPEG dengan kualitas 90%
             return canvas.toDataURL('image/jpeg', 0.9);
         } catch (error) {
             console.error('Cropping failed:', error);
-            return imageElement.src; // Kembalikan gambar asli jika crop gagal
+            return imageElement.src;
         }
     }
 
@@ -362,85 +356,6 @@ class DashboardPresenter {
         this.isDropdownOpen = false;
     }
 
-    async handleLogout() {
-        try {
-            // Panggil service logout
-            const success = await logoutUser();
-
-            if (!success) throw new Error('Logout service failed');
-
-            // Clear semua storage
-            localStorage.clear();
-            sessionStorage.clear();
-
-            // Clear indexedDB jika digunakan
-            if (window.indexedDB) {
-                try {
-                    await this.clearIndexedDB();
-                } catch (dbError) {
-                    console.error('Failed to clear IndexedDB:', dbError);
-                }
-            }
-
-            // Tampilkan notifikasi
-            this.view.showNotification('Logout successful');
-
-            // Redirect dengan full page reload
-            setTimeout(() => {
-                window.location.href = '/login';
-            }, 1000);
-
-        } catch (error) {
-            console.error('Logout error:', error);
-
-            // Fallback handling
-            localStorage.clear();
-            sessionStorage.clear();
-            this.view.showNotification('Logged out (with possible issues)');
-
-            setTimeout(() => {
-                window.location.href = '/login';
-            }, 1500);
-        }
-    }
-
-    async clearIndexedDB() {
-        return new Promise((resolve) => {
-            if (!window.indexedDB) return resolve();
-
-            const dbs = ['scanResultsDB', 'userDataDB']; // Sesuaikan dengan nama DB Anda
-            let cleaned = 0;
-
-            dbs.forEach(dbName => {
-                const req = indexedDB.deleteDatabase(dbName);
-                req.onsuccess = () => {
-                    cleaned++;
-                    if (cleaned === dbs.length) resolve();
-                };
-                req.onerror = () => {
-                    cleaned++;
-                    if (cleaned === dbs.length) resolve();
-                };
-            });
-        });
-    }
-
-    async clearAllStorage() {
-        // Clear client-side storage
-        localStorage.clear();
-        sessionStorage.clear();
-
-        // Clear cookies
-        document.cookie.split(";").forEach((c) => {
-            document.cookie = c.replace(/^ +/, "").replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
-        });
-
-        // Clear IndexedDB
-        if (window.indexedDB) {
-            await this.clearIndexedDB();
-        }
-    }
-
     async handleScan() {
         const croppedImage = this.getCroppedImage();
         if (!croppedImage) {
@@ -449,17 +364,14 @@ class DashboardPresenter {
         }
 
         try {
-            // Close modal terlebih dahulu
             const modal = this.view.querySelector('#imageUploadModal');
             modal.classList.add('hidden');
 
             this.view.showNotification('Preparing image for analysis...');
 
-            // Create and validate image element
             const img = new Image();
             img.crossOrigin = 'Anonymous';
 
-            // Enhanced image loading with better error handling
             const imageLoadPromise = new Promise((resolve, reject) => {
                 const timeout = setTimeout(() => {
                     reject(new Error('Image loading timed out'));
@@ -494,7 +406,6 @@ class DashboardPresenter {
 
             this.view.showNotification('Initializing AI model...');
 
-            // Validate model accessibility
             try {
                 const modelAccessible = await MLService.testModelPath();
                 if (!modelAccessible) {
@@ -504,13 +415,11 @@ class DashboardPresenter {
                     const result = await MLService.detectAcneFallback(img);
                     console.log('Fallback detection successful:', result);
 
-                    // PERBAIKAN: Gunakan saveScanResultSync yang mengembalikan Promise
                     const scanId = await this.saveScanResultSync(result);
                     console.log('Scan result saved with ID:', scanId);
 
                     this.view.showNotification('Demo analysis complete! Redirecting to results...');
 
-                    // PERBAIKAN: Redirect yang lebih robust
                     await this.redirectToResultPage(scanId);
                     return;
                 }
@@ -539,13 +448,11 @@ class DashboardPresenter {
 
             console.log('Detection successful:', result);
 
-            // PERBAIKAN: Simpan result dengan Promise
             const scanId = await this.saveScanResultSync(result);
             console.log('Scan result saved with ID:', scanId);
 
             this.view.showNotification('Analysis complete! Redirecting to results...');
 
-            // PERBAIKAN: Redirect yang lebih robust
             await this.redirectToResultPage(scanId);
 
         } catch (error) {
@@ -554,12 +461,10 @@ class DashboardPresenter {
         }
     }
 
-    // PERBAIKAN: Fungsi redirect yang lebih robust
     async redirectToResultPage(scanId) {
         try {
             console.log('Starting redirect to result page with scanId:', scanId);
 
-            // Verifikasi data tersimpan sebelum redirect
             const storedData = localStorage.getItem(`scan_${scanId}`);
             if (!storedData) {
                 throw new Error('Scan data not found before redirect');
@@ -567,18 +472,14 @@ class DashboardPresenter {
 
             console.log('Scan data verified, proceeding with redirect');
 
-            // PERBAIKAN: Gunakan navigateToUrl yang sudah diperbaiki
             const resultUrl = `/result?scanId=${scanId}`;
             console.log('Redirecting to:', resultUrl);
 
-            // Import navigateToUrl
             const { navigateToUrl } = await import('../../routes/routes.js');
 
-            // Redirect dengan delay minimal untuk memastikan notification terlihat
             setTimeout(() => {
                 navigateToUrl(resultUrl);
 
-                // PERBAIKAN: Tambahkan fallback verification
                 setTimeout(() => {
                     const currentHash = window.location.hash;
                     const expectedHash = `#${resultUrl}`;
@@ -587,7 +488,6 @@ class DashboardPresenter {
                         console.warn('Primary redirect failed, forcing navigation');
                         window.location.hash = expectedHash;
 
-                        // Force reload app if still not working
                         setTimeout(() => {
                             if (window.location.hash !== expectedHash) {
                                 console.error('Redirect completely failed, reloading page');
@@ -601,13 +501,11 @@ class DashboardPresenter {
         } catch (error) {
             console.error('Redirect error:', error);
 
-            // Fallback redirect method
             const fallbackUrl = `#/result?scanId=${scanId}`;
             console.log('Using fallback redirect to:', fallbackUrl);
 
             window.location.hash = fallbackUrl;
 
-            // If fallback also fails, reload the page
             setTimeout(() => {
                 if (!window.location.hash.includes(`scanId=${scanId}`)) {
                     console.error('All redirect methods failed, reloading page');
@@ -618,36 +516,31 @@ class DashboardPresenter {
         }
     }
 
-    // PERBAIKAN: Versi synchronous yang mengembalikan Promise
     saveScanResultSync(result) {
         return new Promise((resolve, reject) => {
             try {
                 const scanId = Date.now();
                 const storageKey = `scan_${scanId}`;
 
-                // Tambahkan timestamp jika belum ada
                 result.timestamp = result.timestamp || new Date().toISOString();
                 result.image = result.image || this.imageData;
 
-                // Cek ukuran data sebelum menyimpan
                 const resultStr = JSON.stringify(result);
-                if (resultStr.length > 5000000) { // ~5MB
+                if (resultStr.length > 5000000) {
                     console.warn('Scan result too large, reducing image data');
                     const compressedResult = { ...result };
-                    compressedResult.image = ''; // Remove image to reduce size
+                    compressedResult.image = '';
                     result = compressedResult;
                 }
 
                 console.log('Attempting to save scan result with ID:', scanId);
 
-                // Coba simpan dengan error handling
                 try {
                     localStorage.setItem(storageKey, JSON.stringify(result));
                     console.log('Scan result saved successfully');
                 } catch (e) {
                     if (e.name === 'QuotaExceededError') {
                         console.warn('LocalStorage full, clearing old scans');
-                        // Hapus scan lama jika localStorage penuh
                         Object.keys(localStorage)
                             .filter(key => key.startsWith('scan_'))
                             .sort()
@@ -657,7 +550,6 @@ class DashboardPresenter {
                                 localStorage.removeItem(key);
                             });
 
-                        // Coba simpan lagi
                         localStorage.setItem(storageKey, JSON.stringify(result));
                         console.log('Scan result saved after cleanup');
                     } else {
@@ -665,7 +557,6 @@ class DashboardPresenter {
                     }
                 }
 
-                // Verifikasi data tersimpan dengan delay
                 setTimeout(() => {
                     const savedData = localStorage.getItem(storageKey);
                     if (!savedData) {
@@ -743,7 +634,6 @@ class DashboardPresenter {
         }
     }
 
-    // Method lain tetap sama...
     saveScanResult(result) {
         try {
             const scanId = Date.now();
@@ -778,10 +668,8 @@ class DashboardPresenter {
     closeImageModal() {
         const modal = this.view.querySelector('#imageUploadModal');
         modal.classList.add('hidden');
-        modal.style.display = 'none'; // Ensure it's hidden
+        modal.style.display = 'none';
         this.resetCropState();
-
-        // Also reset the image data if needed
         this.imageData = null;
     }
 }
