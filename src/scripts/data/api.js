@@ -92,13 +92,50 @@ export const getUserScans = async (userId, token) => {
 
 export const logout = async () => {
     try {
-        // Gunakan centralized logout handler
-        await LogoutHandler.logout();
-        return { success: true };
+        const token = localStorage.getItem('userToken');
+
+        // Bersihkan storage terlebih dahulu - INI YANG PALING PENTING
+        localStorage.removeItem('userToken');
+        localStorage.removeItem('userData');
+        sessionStorage.clear();
+
+        // Clear scan data
+        Object.keys(localStorage)
+            .filter(key => key.startsWith('scan_'))
+            .forEach(key => localStorage.removeItem(key));
+
+        // Untuk GitHub Pages, langsung return dan biarkan client redirect
+        if (window.location.hostname.includes('github.io')) {
+            return {
+                success: true,
+                redirectUrl: 'https://mabduls.github.io/acure-scan/'
+            };
+        }
+
+        if (!token) {
+            return { success: true };
+        }
+
+        try {
+            const response = await fetch(`${BASE_URL}/api/auth/logout`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+            });
+
+            return { success: true };
+        } catch (error) {
+            console.warn('Logout API call failed, but proceeding anyway:', error);
+            return { success: true };
+        }
     } catch (error) {
-        console.error('API logout error:', error);
-        // Fallback ke hard redirect
-        window.location.href = '/acure-scan/index.html#/login';
+        console.error('Logout error:', error);
+        // Fallback: tetap bersihkan storage
+        localStorage.removeItem('userToken');
+        localStorage.removeItem('userData');
+        sessionStorage.clear();
         return { success: true };
     }
 };

@@ -14,35 +14,30 @@
     <main id="mainContent" class="min-h-screen"></main>
     <!-- File JS akan di-inject oleh webpack -->
     <script>
-        // Comprehensive SPA handler for GitHub Pages
+        // Handle logout redirect secara global
         (function () {
-            console.log('SPA Handler initialized');
-            console.log('Location:', window.location.href);
+            // Listen untuk event logout custom
+            window.addEventListener('userLogout', function () {
+                console.log('Global logout handler triggered');
 
-            const repoName = 'acure-scan';
-            const basePath = '/' + repoName + '/';
-            const expectedPath = basePath + 'index.html';
+                // Bersihkan storage
+                localStorage.removeItem('userToken');
+                localStorage.removeItem('userData');
+                sessionStorage.clear();
 
-            // PERBAIKAN: Redirect jika di root domain tanpa path
-            if (window.location.pathname === '/' && window.location.hostname.includes('github.io')) {
-                console.log('Redirecting from root to base path');
-                window.location.href = window.location.origin + expectedPath;
-                return;
-            }
+                // Redirect ke halaman utama TANPA hash
+                if (window.location.hostname.includes('github.io')) {
+                    window.location.href = 'https://mabduls.github.io/acure-scan/';
+                } else {
+                    window.location.hash = '#/';
+                    window.dispatchEvent(new HashChangeEvent('hashchange'));
+                }
+            });
 
-            // PERBAIKAN: Redirect jika path tidak benar
-            if (window.location.pathname !== basePath &&
-                window.location.pathname !== expectedPath &&
-                !window.location.pathname.includes('index.html')) {
-                console.log('Correcting path:', window.location.pathname, '→', expectedPath);
-                window.location.href = window.location.origin + expectedPath + window.location.hash;
-                return;
-            }
-
-            // Handle hash routing untuk SPA
-            if (window.location.hash) {
-                console.log('Hash detected:', window.location.hash);
-                // Biarkan router yang menangani hash
+            // Juga handle hash yang salah
+            if (window.location.hash === '#/' && window.location.hostname.includes('github.io')) {
+                // Jika ada hash root di GitHub Pages, redirect ke tanpa hash
+                window.location.href = 'https://mabduls.github.io/acure-scan/';
             }
         })();
     </script>

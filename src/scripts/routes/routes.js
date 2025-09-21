@@ -75,6 +75,17 @@ function parseUrlWithQuery(hash) {
 function navigateToUrl(url) {
     console.log('Navigating to:', url);
 
+    // Handle logout case specifically
+    if (url === '/logout' || url === '/login' || url === '/') {
+        const isGitHub = window.location.hostname.includes('github.io');
+
+        if (isGitHub) {
+            // Untuk logout, redirect langsung ke base URL
+            window.location.href = 'https://mabduls.github.io/acure-scan/';
+            return;
+        }
+    }
+
     // Handle absolute URLs
     if (url.startsWith('http') || url.includes('://')) {
         window.location.href = url;
@@ -84,31 +95,34 @@ function navigateToUrl(url) {
     const basePath = getBasePath();
     const isGitHub = isGitHubPages();
 
-    // PERBAIKAN: Handle logout redirect khusus
-    if (url === '/login' || url === '#/login') {
-        if (isGitHub) {
-            window.location.href = `${window.location.origin}${basePath}index.html#/login`;
-        } else {
-            window.location.href = `${window.location.origin}/index.html#/login`;
-        }
-        return;
-    }
+    let targetUrl = url;
 
     // Untuk GitHub Pages, handle hash routing dengan benar
     if (isGitHub) {
         if (url.startsWith('/') && !url.startsWith(basePath)) {
-            window.location.href = `${window.location.origin}${basePath}index.html#${url}`;
-            return;
+            // Convert absolute path to hash route
+            targetUrl = '#' + url;
         }
 
-        if (url.startsWith('#')) {
-            window.location.hash = url;
+        if (targetUrl.startsWith('#')) {
+            // Hash routing untuk SPA
+            window.location.hash = targetUrl;
+            setTimeout(() => {
+                window.dispatchEvent(new HashChangeEvent('hashchange'));
+            }, 10);
             return;
         }
     }
 
     // Default navigation
-    window.location.href = url;
+    if (targetUrl.startsWith('/')) {
+        window.location.href = targetUrl;
+    } else {
+        window.location.hash = '#' + targetUrl;
+        setTimeout(() => {
+            window.dispatchEvent(new HashChangeEvent('hashchange'));
+        }, 10);
+    }
 }
 
 function getCurrentPath() {

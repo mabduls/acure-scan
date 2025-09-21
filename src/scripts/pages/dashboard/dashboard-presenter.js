@@ -60,7 +60,7 @@ class DashboardPresenter {
 
         logoutButton.addEventListener('click', async (e) => {
             e.preventDefault();
-            e.stopPropagation(); // Prevent event bubbling
+            e.stopPropagation();
 
             const confirmLogout = confirm('Are you sure you want to logout?');
             if (!confirmLogout) return;
@@ -80,37 +80,30 @@ class DashboardPresenter {
 
                 this.view.showNotification('Logout successful');
 
-                // PERBAIKAN: Redirect yang benar untuk GitHub Pages
-                // Gunakan setTimeout untuk memastikan notification terlihat
+                // PERBAIKAN PASTI: Redirect langsung TANPA hash sama sekali
                 setTimeout(() => {
-                    // Cek apakah di GitHub Pages atau local
                     const isGitHub = window.location.hostname.includes('github.io');
-                    
+
                     if (isGitHub) {
-                        // Untuk GitHub Pages, tetap di base path dengan hash routing
-                        window.location.href = '/acure-scan/#/login';
+                        // Untuk GitHub Pages, redirect langsung ke base URL TANPA hash
+                        // Gunakan location.replace untuk menghindari history
+                        window.location.replace('https://mabduls.github.io/acure-scan/');
                     } else {
-                        // Untuk local development
+                        // Untuk local development - tetap gunakan hash
                         window.location.hash = '#/login';
-                        // Trigger hashchange event manually
                         window.dispatchEvent(new HashChangeEvent('hashchange'));
                     }
                 }, 500);
 
             } catch (error) {
                 console.error('Logout error:', error);
-                
+
                 // Fallback: Clear storage dan redirect anyway
                 localStorage.clear();
                 sessionStorage.clear();
-                
-                // Fallback redirect
-                const isGitHub = window.location.hostname.includes('github.io');
-                if (isGitHub) {
-                    window.location.href = '/acure-scan/#/login';
-                } else {
-                    window.location.hash = '#/login';
-                }
+
+                // Fallback redirect langsung ke URL yang benar TANPA hash
+                window.location.replace('https://mabduls.github.io/acure-scan/');
             }
         });
     }
@@ -122,7 +115,7 @@ class DashboardPresenter {
         const imageElement = this.view.querySelector('#uploadedImage');
 
         uploadTrigger.addEventListener('click', () => {
-            imageInput.value = ''; 
+            imageInput.value = '';
             imageInput.click();
         });
 
