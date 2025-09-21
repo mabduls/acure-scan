@@ -53,47 +53,60 @@ function getAccessToken() {
 
 function parseUrlWithQuery(hash) {
     const cleanHash = hash.startsWith('#') ? hash.substring(1) : hash;
-    
+
     if (!cleanHash || cleanHash === '/') {
         return { path: '/', query: {} };
     }
-    
+
     const [path, queryString] = cleanHash.split('?');
     const query = {};
-    
+
     if (queryString) {
         const params = new URLSearchParams(queryString);
         for (const [key, value] of params.entries()) {
             query[key] = value;
         }
     }
-    
+
     return { path: path || '/', query };
 }
 
 function navigateToUrl(url) {
     console.log('Navigating to:', url);
-    
-    // Handle absolute URLs for GitHub Pages
+
+    // Handle absolute URLs
     if (url.startsWith('http')) {
         window.location.href = url;
         return;
     }
-    
-    // Handle hash-based routing for GitHub Pages
-    const cleanUrl = url.startsWith('#') ? url : `#${url}`;
-    
-    // Untuk GitHub Pages, kita perlu memastikan path base benar
-    const basePath = window.location.pathname;
-    if (basePath.includes('/acure-scan/') && !cleanUrl.startsWith('#/acure-scan/')) {
-        window.location.hash = cleanUrl;
-    } else {
-        window.location.hash = cleanUrl;
+
+    // Handle external URLs
+    if (url.includes('://')) {
+        window.location.href = url;
+        return;
     }
-    
-    setTimeout(() => {
-        window.dispatchEvent(new HashChangeEvent('hashchange'));
-    }, 10);
+
+    // Untuk GitHub Pages, pastikan kita tetap dalam /acure-scan/
+    const currentPath = window.location.pathname;
+    const isGitHubPages = currentPath.includes('/acure-scan/');
+
+    let targetUrl = url;
+
+    if (isGitHubPages && !url.startsWith('/acure-scan/') && !url.startsWith('#')) {
+        // Jika di GitHub Pages dan URL tidak mengandung path, gunakan hash routing
+        targetUrl = '#' + (url.startsWith('/') ? url : '/' + url);
+    }
+
+    if (targetUrl.startsWith('#')) {
+        // Hash routing
+        window.location.hash = targetUrl;
+        setTimeout(() => {
+            window.dispatchEvent(new HashChangeEvent('hashchange'));
+        }, 10);
+    } else {
+        // Full page navigation
+        window.location.href = targetUrl;
+    }
 }
 
 function getCurrentPath() {
@@ -108,7 +121,7 @@ function getQueryParams() {
 
 function checkAuth(route) {
     const isAuthenticated = !!getAccessToken();
-    
+
     if (route.requiresAuth && !isAuthenticated) {
         navigateToUrl('/login');
         return false;

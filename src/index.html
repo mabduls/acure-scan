@@ -1,16 +1,46 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="theme-color" content="#27374D" />
-        <title>Care Acne Application</title>
-        <link rel="apple-touch-icon" href="favicon.png" />
-        <link rel="shortcut icon" href="favicon.png" />
-    </head>
 
-    <body>
-        <main id="mainContent" class="min-h-screen"></main>
-        <!-- File JS akan di-inject oleh webpack -->
-    </body>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#27374D" />
+    <title>Care Acne Application</title>
+    <link rel="apple-touch-icon" href="favicon.png" />
+    <link rel="shortcut icon" href="favicon.png" />
+</head>
+
+<body>
+    <main id="mainContent" class="min-h-screen"></main>
+    <!-- File JS akan di-inject oleh webpack -->
+    <script>
+        // Handle redirect dari 404.html
+        (function () {
+            const redirect = sessionStorage.redirect;
+            delete sessionStorage.redirect;
+
+            if (redirect && redirect !== window.location.href) {
+                const fullRedirect = redirect.startsWith('/') ?
+                    window.location.origin + redirect : redirect;
+
+                // Jika redirect adalah path SPA kita, gunakan hash routing
+                if (redirect.includes('/acure-scan/') || !redirect.includes('.')) {
+                    const hashPath = redirect.replace('/acure-scan/', '/').replace(/^\//, '');
+                    window.location.hash = hashPath ? `#/${hashPath}` : '#/';
+                } else {
+                    window.location.href = fullRedirect;
+                }
+            }
+        })();
+
+        console.log('Current path:', window.location.pathname);
+        console.log('Current hash:', window.location.hash);
+        console.log('Session storage redirect:', sessionStorage.redirect);
+
+        if (sessionStorage.redirect) {
+            console.log('Redirecting from 404:', sessionStorage.redirect);
+        }
+    </script>
+</body>
+
 </html>

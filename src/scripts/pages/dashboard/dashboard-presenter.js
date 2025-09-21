@@ -67,27 +67,26 @@ class DashboardPresenter {
             try {
                 this.view.showNotification('Logging out...');
 
-                // Bersihkan storage pertama
+                // Bersihkan storage
                 localStorage.removeItem('userToken');
                 localStorage.removeItem('userData');
                 sessionStorage.clear();
 
-                // Redirect dengan cara yang compatible GitHub Pages
                 this.view.showNotification('Logout successful');
 
-                // Gunakan window.location.href untuk redirect absolut
-                const baseUrl = window.location.origin + window.location.pathname;
+                // REDIRECT YANG BENAR UNTUK GITHUB PAGES
+                const baseUrl = window.location.origin + '/acure-scan/';
+
                 setTimeout(() => {
-                    window.location.href = baseUrl + '#/';
-                    window.location.reload(); // Force reload untuk membersihkan state
+                    // Gunakan window.location.replace untuk menghindari history entry
+                    window.location.replace(baseUrl + '#/login');
                 }, 1000);
 
             } catch (error) {
                 console.error('Logout error:', error);
                 // Fallback redirect
-                const baseUrl = window.location.origin + window.location.pathname;
-                window.location.href = baseUrl + '#/';
-                window.location.reload();
+                const baseUrl = window.location.origin + '/acure-scan/';
+                window.location.replace(baseUrl + '#/login');
             }
         });
     }

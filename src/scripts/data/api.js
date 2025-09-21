@@ -121,3 +121,8 @@ export const logout = async () => {
         return { success: true };
     }
 };
+
+export const getAbsoluteUrl = (path) => {
+    if (path.startsWith('http')) return path;
+    return `${BASE_URL}${path.startsWith('/') ? path : '/' + path}`;
+};
